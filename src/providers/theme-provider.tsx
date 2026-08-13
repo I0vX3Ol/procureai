@@ -8,6 +8,8 @@ interface ThemeContextValue {
   setTheme: (theme: Theme) => void
 }
 
+const STORAGE_KEY = 'procure-ai-theme'
+
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
 function getSystemTheme(): 'light' | 'dark' {
@@ -16,12 +18,19 @@ function getSystemTheme(): 'light' | 'dark' {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    const stored = localStorage.getItem('procure-ai-theme')
-    return (stored as Theme) ?? 'system'
-  })
+  // SSR-safe: start from a deterministic value, read storage after mount.
+  const [theme, setThemeState] = useState<Theme>('system')
+  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>('light')
 
-  const resolvedTheme = theme === 'system' ? getSystemTheme() : theme
+  useEffect(() => {
+    const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null
+    if (stored === 'light' || stored === 'dark' || stored === 'system') {
+      setThemeState(stored)
+    }
+    setSystemTheme(getSystemTheme())
+  }, [])
+
+  const resolvedTheme = theme === 'system' ? systemTheme : theme
 
   useEffect(() => {
     const root = document.documentElement
@@ -31,19 +40,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (theme !== 'system') return
-
     const media = window.matchMedia('(prefers-color-scheme: dark)')
-    const handler = () => {
-      const root = document.documentElement
-      root.classList.remove('light', 'dark')
-      root.classList.add(getSystemTheme())
-    }
+    const handler = () => setSystemTheme(media.matches ? 'dark' : 'light')
     media.addEventListener('change', handler)
     return () => media.removeEventListener('change', handler)
   }, [theme])
 
   const setTheme = (next: Theme) => {
-    localStorage.setItem('procure-ai-theme', next)
+    window.localStorage.setItem(STORAGE_KEY, next)
     setThemeState(next)
   }
 
@@ -54,8 +58,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   )
 }
 
-export function useTheme() {
+export function useTheme(): ThemeContextValue {
   const context = useContext(ThemeContext)
-  if (!context) throw new Error('useTheme must be used within ThemeProvider')
+  if (!context) throw new Error('useTheme must be used within a ThemeProvider')
   return context
 }
