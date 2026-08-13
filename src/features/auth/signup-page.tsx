@@ -33,7 +33,10 @@ export function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-muted/30 px-4 py-12">
+    <main
+      id="main-content"
+      className="flex min-h-dvh flex-col items-center justify-center bg-muted/30 px-4 py-12"
+    >
       <div className="mb-8 flex items-center gap-2.5">
         <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Bot className="size-5" aria-hidden="true" />
@@ -95,6 +98,6 @@ export function SignupPage() {
           </p>
         </CardContent>
       </Card>
-    </div>
+    </main>
   )
 }

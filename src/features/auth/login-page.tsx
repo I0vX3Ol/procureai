@@ -28,7 +28,10 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-muted/30 px-4">
+    <main
+      id="main-content"
+      className="flex min-h-dvh flex-col items-center justify-center bg-muted/30 px-4"
+    >
       <div className="mb-8 flex items-center gap-2.5">
         <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Bot className="size-5" aria-hidden="true" />
@@ -58,7 +61,15 @@ export function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <button type="button" className="text-xs text-primary hover:underline">
+                <button
+                  type="button"
+                  className="text-xs text-primary hover:underline"
+                  onClick={() =>
+                    toast.info('Check your email', {
+                      description: 'If an account exists for that email, a reset link is on its way.',
+                    })
+                  }
+                >
                   Forgot password?
                 </button>
               </div>
@@ -83,6 +94,6 @@ export function LoginPage() {
           </p>
         </CardContent>
       </Card>
-    </div>
+    </main>
   )
 }

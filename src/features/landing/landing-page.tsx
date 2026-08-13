@@ -88,7 +88,7 @@ export function LandingPage() {
     <div className="min-h-dvh bg-background">
       <LandingNav />
 
-      <main>
+      <main id="main-content">
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-border">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,oklch(0.45_0.14_250/0.12),transparent)]" />

@@ -16,10 +16,18 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAiRouteImport } from './routes/app.ai'
 import { Route as AppAnalyticsRouteImport } from './routes/app.analytics'
+import { Route as AppCalendarRouteImport } from './routes/app.calendar'
+import { Route as AppCustomersRouteImport } from './routes/app.customers'
+import { Route as AppDocumentsRouteImport } from './routes/app.documents'
+import { Route as AppIntegrationsRouteImport } from './routes/app.integrations'
 import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
 import { Route as AppOpportunitiesRouteImport } from './routes/app.opportunities'
+import { Route as AppOrganizationRouteImport } from './routes/app.organization'
 import { Route as AppPipelineRouteImport } from './routes/app.pipeline'
 import { Route as AppProjectsRouteImport } from './routes/app.projects'
+import { Route as AppProposalsRouteImport } from './routes/app.proposals'
+import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppSupportRouteImport } from './routes/app.support'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -56,6 +64,26 @@ const AppAnalyticsRoute = AppAnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCalendarRoute = AppCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCustomersRoute = AppCustomersRouteImport.update({
+  id: '/customers',
+  path: '/customers',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDocumentsRoute = AppDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppIntegrationsRoute = AppIntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppNotificationsRoute = AppNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
@@ -64,6 +92,11 @@ const AppNotificationsRoute = AppNotificationsRouteImport.update({
 const AppOpportunitiesRoute = AppOpportunitiesRouteImport.update({
   id: '/opportunities',
   path: '/opportunities',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOrganizationRoute = AppOrganizationRouteImport.update({
+  id: '/organization',
+  path: '/organization',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPipelineRoute = AppPipelineRouteImport.update({
@@ -76,6 +109,21 @@ const AppProjectsRoute = AppProjectsRouteImport.update({
   path: '/projects',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProposalsRoute = AppProposalsRouteImport.update({
+  id: '/proposals',
+  path: '/proposals',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSupportRoute = AppSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -84,10 +132,18 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/app/ai': typeof AppAiRoute
   '/app/analytics': typeof AppAnalyticsRoute
+  '/app/calendar': typeof AppCalendarRoute
+  '/app/customers': typeof AppCustomersRoute
+  '/app/documents': typeof AppDocumentsRoute
+  '/app/integrations': typeof AppIntegrationsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
+  '/app/organization': typeof AppOrganizationRoute
   '/app/pipeline': typeof AppPipelineRoute
   '/app/projects': typeof AppProjectsRoute
+  '/app/proposals': typeof AppProposalsRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/support': typeof AppSupportRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
@@ -96,10 +152,18 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/app/ai': typeof AppAiRoute
   '/app/analytics': typeof AppAnalyticsRoute
+  '/app/calendar': typeof AppCalendarRoute
+  '/app/customers': typeof AppCustomersRoute
+  '/app/documents': typeof AppDocumentsRoute
+  '/app/integrations': typeof AppIntegrationsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
+  '/app/organization': typeof AppOrganizationRoute
   '/app/pipeline': typeof AppPipelineRoute
   '/app/projects': typeof AppProjectsRoute
+  '/app/proposals': typeof AppProposalsRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/support': typeof AppSupportRoute
   '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
@@ -110,10 +174,18 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/app/ai': typeof AppAiRoute
   '/app/analytics': typeof AppAnalyticsRoute
+  '/app/calendar': typeof AppCalendarRoute
+  '/app/customers': typeof AppCustomersRoute
+  '/app/documents': typeof AppDocumentsRoute
+  '/app/integrations': typeof AppIntegrationsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
+  '/app/organization': typeof AppOrganizationRoute
   '/app/pipeline': typeof AppPipelineRoute
   '/app/projects': typeof AppProjectsRoute
+  '/app/proposals': typeof AppProposalsRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/support': typeof AppSupportRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
@@ -125,10 +197,18 @@ export interface FileRouteTypes {
     | '/signup'
     | '/app/ai'
     | '/app/analytics'
+    | '/app/calendar'
+    | '/app/customers'
+    | '/app/documents'
+    | '/app/integrations'
     | '/app/notifications'
     | '/app/opportunities'
+    | '/app/organization'
     | '/app/pipeline'
     | '/app/projects'
+    | '/app/proposals'
+    | '/app/settings'
+    | '/app/support'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -137,10 +217,18 @@ export interface FileRouteTypes {
     | '/signup'
     | '/app/ai'
     | '/app/analytics'
+    | '/app/calendar'
+    | '/app/customers'
+    | '/app/documents'
+    | '/app/integrations'
     | '/app/notifications'
     | '/app/opportunities'
+    | '/app/organization'
     | '/app/pipeline'
     | '/app/projects'
+    | '/app/proposals'
+    | '/app/settings'
+    | '/app/support'
     | '/app'
   id:
     | '__root__'
@@ -150,10 +238,18 @@ export interface FileRouteTypes {
     | '/signup'
     | '/app/ai'
     | '/app/analytics'
+    | '/app/calendar'
+    | '/app/customers'
+    | '/app/documents'
+    | '/app/integrations'
     | '/app/notifications'
     | '/app/opportunities'
+    | '/app/organization'
     | '/app/pipeline'
     | '/app/projects'
+    | '/app/proposals'
+    | '/app/settings'
+    | '/app/support'
     | '/app/'
   fileRoutesById: FileRoutesById
 }
@@ -215,6 +311,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAnalyticsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/calendar': {
+      id: '/app/calendar'
+      path: '/calendar'
+      fullPath: '/app/calendar'
+      preLoaderRoute: typeof AppCalendarRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/customers': {
+      id: '/app/customers'
+      path: '/customers'
+      fullPath: '/app/customers'
+      preLoaderRoute: typeof AppCustomersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/documents': {
+      id: '/app/documents'
+      path: '/documents'
+      fullPath: '/app/documents'
+      preLoaderRoute: typeof AppDocumentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/integrations': {
+      id: '/app/integrations'
+      path: '/integrations'
+      fullPath: '/app/integrations'
+      preLoaderRoute: typeof AppIntegrationsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/notifications': {
       id: '/app/notifications'
       path: '/notifications'
@@ -227,6 +351,13 @@ declare module '@tanstack/react-router' {
       path: '/opportunities'
       fullPath: '/app/opportunities'
       preLoaderRoute: typeof AppOpportunitiesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/organization': {
+      id: '/app/organization'
+      path: '/organization'
+      fullPath: '/app/organization'
+      preLoaderRoute: typeof AppOrganizationRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/pipeline': {
@@ -243,26 +374,63 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProjectsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/proposals': {
+      id: '/app/proposals'
+      path: '/proposals'
+      fullPath: '/app/proposals'
+      preLoaderRoute: typeof AppProposalsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/support': {
+      id: '/app/support'
+      path: '/support'
+      fullPath: '/app/support'
+      preLoaderRoute: typeof AppSupportRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
   AppAiRoute: typeof AppAiRoute
   AppAnalyticsRoute: typeof AppAnalyticsRoute
+  AppCalendarRoute: typeof AppCalendarRoute
+  AppCustomersRoute: typeof AppCustomersRoute
+  AppDocumentsRoute: typeof AppDocumentsRoute
+  AppIntegrationsRoute: typeof AppIntegrationsRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppOpportunitiesRoute: typeof AppOpportunitiesRoute
+  AppOrganizationRoute: typeof AppOrganizationRoute
   AppPipelineRoute: typeof AppPipelineRoute
   AppProjectsRoute: typeof AppProjectsRoute
+  AppProposalsRoute: typeof AppProposalsRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppSupportRoute: typeof AppSupportRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAiRoute: AppAiRoute,
   AppAnalyticsRoute: AppAnalyticsRoute,
+  AppCalendarRoute: AppCalendarRoute,
+  AppCustomersRoute: AppCustomersRoute,
+  AppDocumentsRoute: AppDocumentsRoute,
+  AppIntegrationsRoute: AppIntegrationsRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppOpportunitiesRoute: AppOpportunitiesRoute,
+  AppOrganizationRoute: AppOrganizationRoute,
   AppPipelineRoute: AppPipelineRoute,
   AppProjectsRoute: AppProjectsRoute,
+  AppProposalsRoute: AppProposalsRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppSupportRoute: AppSupportRoute,
   AppIndexRoute: AppIndexRoute,
 }
 

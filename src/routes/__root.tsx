@@ -16,7 +16,10 @@ import { ThemeProvider } from "@/providers/theme-provider";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <main
+      id="main-content"
+      className="flex min-h-screen items-center justify-center bg-background px-4"
+    >
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
@@ -32,7 +35,7 @@ function NotFoundComponent() {
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -44,7 +47,11 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <main
+      id="main-content"
+      role="alert"
+      className="flex min-h-screen items-center justify-center bg-background px-4"
+    >
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           This page didn't load
@@ -70,7 +77,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           </a>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -112,11 +119,17 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+        >
+          Skip to main content
+        </a>
         {children}
         <Scripts />
       </body>
     </html>
-  );
+  )
 }
 
 function RootComponent() {

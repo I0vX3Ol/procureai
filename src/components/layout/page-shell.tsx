@@ -27,7 +27,8 @@ export function PageShell({
     <>
       <AppHeader title={title} description={description} breadcrumbs={breadcrumbs} />
       <ScrollArea className="flex-1">
-        <div
+        <main
+          id="main-content"
           className={cn(
             'p-6',
             !fullWidth && 'mx-auto max-w-7xl',
@@ -36,7 +37,7 @@ export function PageShell({
         >
           {actions && <div className="mb-6 flex flex-wrap items-center justify-end gap-3">{actions}</div>}
           {children}
-        </div>
+        </main>
       </ScrollArea>
     </>
   )
