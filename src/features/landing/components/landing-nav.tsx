@@ -90,6 +90,7 @@ export function LandingNav() {
             onClick={() => setMobileOpen((o) => !o)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileOpen}
+            aria-controls="mobile-nav-menu"
           >
             {mobileOpen ? (
               <X className="size-4" aria-hidden="true" />
@@ -101,7 +102,7 @@ export function LandingNav() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-border/60 bg-background/95 backdrop-blur-lg md:hidden">
+        <div id="mobile-nav-menu" className="border-t border-border/60 bg-background/95 backdrop-blur-lg md:hidden">
           <nav className="page-container flex flex-col gap-1 py-3" aria-label="Mobile">
             {navLinks.map((link) => (
               <a

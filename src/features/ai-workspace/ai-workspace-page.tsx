@@ -127,7 +127,7 @@ export function AIWorkspacePage() {
             </CardHeader>
             <CardContent className="flex flex-1 flex-col gap-4 overflow-hidden pt-0">
               <ScrollArea className="flex-1 pr-4">
-                <div className="space-y-4">
+                <div className="space-y-4" role="log" aria-live="polite" aria-relevant="additions">
                   {messages.map((msg) => (
                     <div
                       key={msg.id}

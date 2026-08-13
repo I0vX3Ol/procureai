@@ -165,6 +165,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
                         : 'text-sidebar-foreground hover:bg-sidebar-accent/60',
                       collapsed && 'justify-center px-2',
                     )}
+                    aria-current={isActive ? 'page' : undefined}
                   >
                     <Icon className="size-4 shrink-0" aria-hidden="true" />
                     {!collapsed && <span className="truncate">{item.title}</span>}

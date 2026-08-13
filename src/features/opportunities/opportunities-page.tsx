@@ -1,5 +1,6 @@
 import { Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 import { PageShell } from '@/components/layout/page-shell'
 import { Badge } from '@/components/ui/badge'
@@ -49,7 +50,14 @@ export function OpportunitiesPage() {
       title="Opportunities"
       description={`${opportunities.length} opportunities in your pipeline`}
       actions={
-        <Button size="sm">
+        <Button
+          size="sm"
+          onClick={() =>
+            toast.info('Opportunity creation', {
+              description: 'Manual opportunity entry is coming soon. New matches sync automatically from your connected sources.',
+            })
+          }
+        >
           <Plus className="size-4" aria-hidden="true" />
           Add opportunity
         </Button>

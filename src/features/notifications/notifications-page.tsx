@@ -48,11 +48,22 @@ export function NotificationsPage() {
         {notifications.map((notif) => (
           <Card
             key={notif.id}
+            role="button"
+            tabIndex={0}
+            aria-pressed={notif.read}
+            aria-label={`${notif.title}. Mark as ${notif.read ? 'unread' : 'read'}`}
             className={cn(
               'cursor-pointer transition-colors hover:bg-muted/30',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               !notif.read && 'border-primary/30 bg-primary/5',
             )}
             onClick={() => toggleRead(notif.id)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                toggleRead(notif.id)
+              }
+            }}
           >
             <CardContent className="flex items-start gap-4 p-4">
               <div
