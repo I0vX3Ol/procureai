@@ -1,24 +1,23 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
-export const Route = createFileRoute("/")({
-  component: Index,
-});
+import { LandingPage } from '@/features/landing/landing-page'
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
+export const Route = createFileRoute('/')({
+  head: () => ({
+    meta: [
+      { title: 'ProcureAI — Win more government and enterprise contracts' },
+      {
+        name: 'description',
+        content:
+          'AI-powered procurement intelligence: discover opportunities, qualify bids, build proposals, and track your pipeline in one workspace.',
+      },
+      { property: 'og:title', content: 'ProcureAI — AI procurement intelligence' },
+      {
+        property: 'og:description',
+        content:
+          'Discover opportunities, qualify bids, and build winning proposals with AI assistance.',
+      },
+    ],
+  }),
+  component: LandingPage,
+})
