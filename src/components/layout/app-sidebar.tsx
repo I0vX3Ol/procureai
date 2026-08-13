@@ -228,8 +228,8 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
 
 interface AppHeaderProps {
   title: string
-  description?: string
-  breadcrumbs?: { label: string; href?: string }[]
+  description?: string | undefined
+  breadcrumbs?: { label: string; href?: string }[] | undefined
 }
 
 export function AppHeader({ title, description, breadcrumbs }: AppHeaderProps) {

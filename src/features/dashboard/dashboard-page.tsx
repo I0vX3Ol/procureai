@@ -298,7 +298,7 @@ export function DashboardPage() {
                       minute: '2-digit',
                     })}
                   </p>
-                  {activity.id !== aiActivities[aiActivities.length - 1].id && (
+                  {activity.id !== aiActivities[aiActivities.length - 1]?.id && (
                     <Separator className="mt-4" />
                   )}
                 </li>
