@@ -1,23 +1,23 @@
-import type { LucideIcon } from 'lucide-react'
+import type { LucideIcon } from "lucide-react";
 
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface EmptyStateProps {
-  icon: LucideIcon
-  title: string
-  description: string
+  icon: LucideIcon;
+  title: string;
+  description: string;
   action?: {
-    label: string
-    onClick?: () => void
-    href?: string
-  }
+    label: string;
+    onClick?: () => void;
+    href?: string;
+  };
   secondaryAction?: {
-    label: string
-    onClick?: () => void
-    href?: string
-  }
-  className?: string
+    label: string;
+    onClick?: () => void;
+    href?: string;
+  };
+  className?: string;
 }
 
 export function EmptyState({
@@ -31,7 +31,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 px-6 py-16 text-center',
+        "flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 px-6 py-16 text-center",
         className,
       )}
       role="status"
@@ -64,5 +64,5 @@ export function EmptyState({
         </div>
       )}
     </div>
-  )
+  );
 }

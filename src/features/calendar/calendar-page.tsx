@@ -1,46 +1,46 @@
-import { useMemo, useState } from 'react'
-import { Briefcase, CalendarClock, CheckSquare, FileText, Flag } from 'lucide-react'
+import { useMemo, useState } from "react";
+import { Briefcase, CalendarClock, CheckSquare, FileText, Flag } from "lucide-react";
 
-import { PageShell } from '@/components/layout/page-shell'
-import { Badge } from '@/components/ui/badge'
-import { Calendar } from '@/components/ui/calendar'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { EmptyState } from '@/components/common/empty-state'
-import { calendarEvents } from '@/data/workspace-data'
-import { formatRelativeDate } from '@/lib/utils'
-import type { CalendarEvent, CalendarEventType } from '@/types/workspace'
+import { PageShell } from "@/components/layout/page-shell";
+import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/common/empty-state";
+import { calendarEvents } from "@/data/workspace-data";
+import { formatRelativeDate } from "@/lib/utils";
+import type { CalendarEvent, CalendarEventType } from "@/types/workspace";
 
 const typeIcons: Record<CalendarEventType, typeof Briefcase> = {
   opportunity: Briefcase,
   proposal: FileText,
   milestone: Flag,
   task: CheckSquare,
-}
+};
 
 const typeLabels: Record<CalendarEventType, string> = {
-  opportunity: 'Opportunity',
-  proposal: 'Proposal',
-  milestone: 'Milestone',
-  task: 'Task',
-}
+  opportunity: "Opportunity",
+  proposal: "Proposal",
+  milestone: "Milestone",
+  task: "Task",
+};
 
-const typeVariant: Record<CalendarEventType, 'secondary' | 'warning' | 'success' | 'default'> = {
-  opportunity: 'secondary',
-  proposal: 'success',
-  milestone: 'warning',
-  task: 'default',
-}
+const typeVariant: Record<CalendarEventType, "secondary" | "warning" | "success" | "default"> = {
+  opportunity: "secondary",
+  proposal: "success",
+  milestone: "warning",
+  task: "default",
+};
 
 function isSameDay(a: Date, b: Date) {
   return (
     a.getFullYear() === b.getFullYear() &&
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate()
-  )
+  );
 }
 
 function EventRow({ event }: { event: CalendarEvent }) {
-  const Icon = typeIcons[event.type]
+  const Icon = typeIcons[event.type];
 
   return (
     <li className="flex items-start gap-3 rounded-lg border border-border p-3">
@@ -64,35 +64,35 @@ function EventRow({ event }: { event: CalendarEvent }) {
         </div>
       </div>
     </li>
-  )
+  );
 }
 
 export function CalendarPage() {
-  const [selected, setSelected] = useState<Date | undefined>(new Date('2026-08-13'))
+  const [selected, setSelected] = useState<Date | undefined>(new Date("2026-08-13"));
 
-  const eventDays = useMemo(() => calendarEvents.map((event) => event.date), [])
+  const eventDays = useMemo(() => calendarEvents.map((event) => event.date), []);
 
   const selectedEvents = useMemo(() => {
-    if (!selected) return []
+    if (!selected) return [];
     return calendarEvents
       .filter((event) => isSameDay(event.date, selected))
-      .sort((a, b) => a.date.getTime() - b.date.getTime())
-  }, [selected])
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
+  }, [selected]);
 
   const upcomingEvents = useMemo(
     () =>
       [...calendarEvents]
-        .filter((event) => event.date.getTime() >= new Date('2026-08-13').getTime())
+        .filter((event) => event.date.getTime() >= new Date("2026-08-13").getTime())
         .sort((a, b) => a.date.getTime() - b.date.getTime())
         .slice(0, 6),
     [],
-  )
+  );
 
   return (
     <PageShell
       title="Calendar"
       description="Deadlines, milestones, and tasks across your procurement pipeline."
-      breadcrumbs={[{ label: 'Workspace', href: '/app' }, { label: 'Calendar' }]}
+      breadcrumbs={[{ label: "Workspace", href: "/app" }, { label: "Calendar" }]}
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,auto)_minmax(0,1fr)]">
         <Card className="h-fit">
@@ -104,7 +104,7 @@ export function CalendarPage() {
               modifiers={{ hasEvent: eventDays }}
               modifiersClassNames={{
                 hasEvent:
-                  'relative after:absolute after:bottom-1 after:left-1/2 after:size-1 after:-translate-x-1/2 after:rounded-full after:bg-primary',
+                  "relative after:absolute after:bottom-1 after:left-1/2 after:size-1 after:-translate-x-1/2 after:rounded-full after:bg-primary",
               }}
             />
           </CardContent>
@@ -116,13 +116,13 @@ export function CalendarPage() {
               <CalendarClock className="size-4 text-muted-foreground" aria-hidden="true" />
               <CardTitle className="text-base">
                 {selected
-                  ? selected.toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric',
+                  ? selected.toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
                     })
-                  : 'Select a date'}
+                  : "Select a date"}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -134,7 +134,10 @@ export function CalendarPage() {
                   className="py-10"
                 />
               ) : (
-                <ul className="space-y-3" aria-label={`Events on ${selected?.toDateString() ?? ''}`}>
+                <ul
+                  className="space-y-3"
+                  aria-label={`Events on ${selected?.toDateString() ?? ""}`}
+                >
                   {selectedEvents.map((event) => (
                     <EventRow key={event.id} event={event} />
                   ))}
@@ -158,5 +161,5 @@ export function CalendarPage() {
         </div>
       </div>
     </PageShell>
-  )
+  );
 }

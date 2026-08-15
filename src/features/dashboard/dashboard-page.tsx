@@ -1,13 +1,16 @@
+import { Link } from "@tanstack/react-router";
 import {
   ArrowDownRight,
   ArrowUpRight,
   Calendar,
   CheckCircle2,
   Circle,
+  Scale,
   Sparkles,
   Target,
   TrendingUp,
-} from 'lucide-react'
+} from "lucide-react";
+import { useMemo } from "react";
 import {
   Area,
   AreaChart,
@@ -18,295 +21,467 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts'
+} from "recharts";
 
-import { PageShell } from '@/components/layout/page-shell'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { Separator } from '@/components/ui/separator'
+import { ChartCard } from "@/components/common/chart-card";
+import { PageShell } from "@/components/layout/page-shell";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import {
   aiActivities,
-  dashboardMetrics,
-  opportunities,
+  aiRecommendations,
+  metricTrends,
+  opportunityTrendData,
   pipelineChartData,
   projects,
   tasks,
-} from '@/data/mock-data'
-import { cn, formatCurrency, formatPercent, formatRelativeDate } from '@/lib/utils'
+} from "@/data/mock-data";
+import {
+  dashboardMetrics,
+  daysUntil,
+  deadlinesWithin,
+  openOpportunities,
+  weightedValue,
+} from "@/lib/metrics";
+import { cn, formatCurrency, formatPercent, formatRelativeDate } from "@/lib/utils";
+import { useWorkspace } from "@/providers/workspace-provider";
+
+const healthLabels = {
+  on_track: "On track",
+  at_risk: "At risk",
+  off_track: "Off track",
+} as const;
+
+const healthVariants = {
+  on_track: "success",
+  at_risk: "warning",
+  off_track: "destructive",
+} as const;
+
+const impactVariants = {
+  high: "destructive",
+  medium: "warning",
+  low: "secondary",
+} as const;
 
 function MetricCard({
   label,
   value,
   change,
   changeLabel,
+  hint,
 }: {
-  label: string
-  value: string
-  change: number
-  changeLabel?: string
+  label: string;
+  value: string;
+  change?: number;
+  changeLabel?: string;
+  hint?: string;
 }) {
-  const isPositive = change >= 0
-  const Icon = isPositive ? ArrowUpRight : ArrowDownRight
+  const isPositive = (change ?? 0) >= 0;
+  const Icon = isPositive ? ArrowUpRight : ArrowDownRight;
 
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardDescription>{label}</CardDescription>
-        <CardTitle className="text-2xl font-semibold tabular-nums">{value}</CardTitle>
+        {/* The label is the heading — a screen reader landing on a heading that
+            reads "$10,490,000" has no idea what the number means. */}
+        <CardTitle className="text-sm font-normal text-muted-foreground">{label}</CardTitle>
+        <p className="text-2xl font-semibold tabular-nums">{value}</p>
       </CardHeader>
       <CardContent>
-        <div
-          className={cn(
-            'flex items-center gap-1 text-xs font-medium',
-            isPositive ? 'text-success' : 'text-destructive',
-          )}
-        >
-          <Icon className="size-3.5" aria-hidden="true" />
-          <span>{formatPercent(Math.abs(change), 1)}</span>
-          {changeLabel && <span className="text-muted-foreground font-normal">{changeLabel}</span>}
-        </div>
+        {change !== undefined ? (
+          <p
+            className={cn(
+              "flex items-center gap-1 text-xs font-medium",
+              isPositive ? "text-success-emphasis" : "text-destructive-emphasis",
+            )}
+          >
+            <Icon className="size-3.5" aria-hidden="true" />
+            <span>
+              {isPositive ? "Up" : "Down"} {formatPercent(Math.abs(change), 1)}
+            </span>
+            {changeLabel && (
+              <span className="font-normal text-muted-foreground">{changeLabel}</span>
+            )}
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">{hint}</p>
+        )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function DashboardPage() {
-  const upcomingOpportunities = [...opportunities]
-    .sort((a, b) => a.deadline.getTime() - b.deadline.getTime())
-    .slice(0, 4)
+  const { opportunities } = useWorkspace();
+
+  const metrics = useMemo(() => dashboardMetrics(opportunities), [opportunities]);
+  const open = useMemo(() => openOpportunities(opportunities), [opportunities]);
+  const forecast = useMemo(() => weightedValue(open), [open]);
+  const upcoming = useMemo(() => deadlinesWithin(45, opportunities).slice(0, 5), [opportunities]);
+  const activeProjects = projects.filter((project) => project.status === "active");
+  const openTasks = tasks.filter((task) => !task.completed);
 
   return (
     <PageShell
       title="Dashboard"
-      description="Overview of your procurement pipeline and team activity"
+      description="Pipeline, forecast, and the work that needs attention today"
+      actions={
+        <>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/app/analytics">View analytics</Link>
+          </Button>
+          <Button size="sm" asChild>
+            <Link to="/app/opportunities">Review opportunities</Link>
+          </Button>
+        </>
+      }
     >
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
-          label="Pipeline Value"
-          value={formatCurrency(dashboardMetrics.pipelineValue)}
-          change={dashboardMetrics.pipelineChange}
-          changeLabel="vs last month"
-        />
-        <MetricCard
-          label="Revenue Won"
-          value={formatCurrency(dashboardMetrics.revenueWon)}
-          change={dashboardMetrics.revenueChange}
-          changeLabel="YTD"
-        />
-        <MetricCard
-          label="Win Rate"
-          value={formatPercent(dashboardMetrics.winRate, 1)}
-          change={dashboardMetrics.winRateChange}
-          changeLabel="vs last quarter"
-        />
-        <MetricCard
-          label="Active Opportunities"
-          value={String(dashboardMetrics.activeOpportunities)}
-          change={8.2}
-          changeLabel="new this month"
-        />
-      </div>
+      <section aria-labelledby="kpi-heading">
+        <h2 id="kpi-heading" className="sr-only">
+          Key performance indicators
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <MetricCard
+            label="Open pipeline"
+            value={formatCurrency(metrics.pipelineValue)}
+            change={metricTrends.pipelineChange}
+            changeLabel="vs last month"
+          />
+          <MetricCard
+            label="Weighted forecast"
+            value={formatCurrency(forecast)}
+            hint={`Probability-adjusted across ${open.length} open pursuits`}
+          />
+          <MetricCard
+            label="Win rate"
+            value={formatPercent(metrics.winRate, 1)}
+            change={metricTrends.winRateChange}
+            changeLabel="vs last quarter"
+          />
+          <MetricCard
+            label="Revenue won"
+            value={formatCurrency(metrics.revenueWon)}
+            change={metricTrends.revenueChange}
+            changeLabel="year to date"
+          />
+        </div>
+      </section>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="size-4 text-muted-foreground" aria-hidden="true" />
-              Pipeline Growth
-            </CardTitle>
-            <CardDescription>Total pipeline value over time</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64" role="img" aria-label="Pipeline growth chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={pipelineChartData}>
-                  <defs>
-                    <linearGradient id="pipelineFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.2} />
-                      <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <YAxis
-                    tick={{ fontSize: 12 }}
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={(v) => `$${(v / 1_000_000).toFixed(1)}M`}
-                  />
-                  <Tooltip
-                    formatter={(value) => [formatCurrency(Number(value ?? 0)), 'Pipeline']}
-                    contentStyle={{
-                      background: 'var(--color-popover)',
-                      border: '1px solid var(--color-border)',
-                      borderRadius: '8px',
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke="var(--color-primary)"
-                    fill="url(#pipelineFill)"
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+      <section aria-labelledby="pipeline-heading" className="mt-6">
+        <h2 id="pipeline-heading" className="sr-only">
+          Pipeline and deadlines
+        </h2>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <ChartCard
+            className="lg:col-span-2"
+            title="Pipeline growth"
+            description="Total qualified pipeline value by month"
+            rows={pipelineChartData.map((point) => point.label)}
+            series={[
+              {
+                label: "Pipeline value",
+                values: pipelineChartData.map((point) => formatCurrency(point.value)),
+              },
+            ]}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={pipelineChartData}>
+                <defs>
+                  <linearGradient id="pipelineFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.2} />
+                    <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => `$${(v / 1_000_000).toFixed(1)}M`}
+                />
+                <Tooltip
+                  formatter={(value) => [formatCurrency(Number(value ?? 0)), "Pipeline"]}
+                  contentStyle={{
+                    background: "var(--color-popover)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "8px",
+                    color: "var(--color-popover-foreground)",
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke="var(--color-primary)"
+                  fill="url(#pipelineFill)"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </ChartCard>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="size-4 text-muted-foreground" aria-hidden="true" />
-              Upcoming Deadlines
-            </CardTitle>
-            <CardDescription>{dashboardMetrics.upcomingDeadlines} due within 30 days</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {upcomingOpportunities.map((opp) => (
-              <div key={opp.id} className="space-y-1">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-medium leading-snug">{opp.title}</p>
-                  <Badge variant={opp.fitScore >= 90 ? 'success' : 'secondary'}>
-                    {opp.fitScore}%
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Calendar className="size-3" aria-hidden="true" />
-                  <time dateTime={opp.deadline.toISOString()}>{formatRelativeDate(opp.deadline)}</time>
-                  <span>·</span>
-                  <span>{formatCurrency(opp.value)}</span>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="size-4 text-muted-foreground" aria-hidden="true" />
+                Upcoming deadlines
+              </CardTitle>
+              <CardDescription>{metrics.upcomingDeadlines} closing within 30 days</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-4">
+                {upcoming.map((opportunity) => {
+                  const days = daysUntil(opportunity.deadline);
+                  return (
+                    <li key={opportunity.id} className="space-y-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium leading-snug">{opportunity.title}</p>
+                        <Badge variant={days <= 7 ? "destructive" : "secondary"}>{days}d</Badge>
+                      </div>
+                      <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <Calendar className="size-3" aria-hidden="true" />
+                        <time dateTime={opportunity.deadline.toISOString()}>
+                          {formatRelativeDate(opportunity.deadline)}
+                        </time>
+                        <span aria-hidden="true">·</span>
+                        <span>{formatCurrency(opportunity.value)}</span>
+                        <span aria-hidden="true">·</span>
+                        <span>{opportunity.owner}</span>
+                      </p>
+                    </li>
+                  );
+                })}
+                {upcoming.length === 0 && (
+                  <li className="text-sm text-muted-foreground">
+                    No deadlines in the next 45 days.
+                  </li>
+                )}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Active Projects</CardTitle>
-            <CardDescription>Proposal and capture projects in progress</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            {projects.map((project) => (
-              <div key={project.id} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium">{project.name}</p>
-                  <span className="text-xs text-muted-foreground tabular-nums">{project.progress}%</span>
-                </div>
-                <Progress value={project.progress} aria-label={`${project.name} progress`} />
-                <p className="text-xs text-muted-foreground">
-                  {project.teamSize} team members · Due {formatRelativeDate(project.dueDate)}
-                </p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Tasks</CardTitle>
-            <CardDescription>Your team's priority items</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3" aria-label="Task list">
-              {tasks.map((task) => (
-                <li key={task.id} className="flex items-start gap-3">
-                  {task.completed ? (
-                    <CheckCircle2 className="mt-0.5 size-4 text-success shrink-0" aria-hidden="true" />
-                  ) : (
-                    <Circle className="mt-0.5 size-4 text-muted-foreground shrink-0" aria-hidden="true" />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p
-                      className={cn(
-                        'text-sm',
-                        task.completed && 'text-muted-foreground line-through',
-                      )}
-                    >
-                      {task.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {task.assignee} · {formatRelativeDate(task.dueDate)}
-                    </p>
-                  </div>
-                  <Badge
-                    variant={
-                      task.priority === 'high'
-                        ? 'destructive'
-                        : task.priority === 'medium'
-                          ? 'warning'
-                          : 'secondary'
-                    }
-                  >
-                    {task.priority}
-                  </Badge>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Weekly Activity</CardTitle>
-            <CardDescription>Opportunities discovered and qualified</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-48" role="img" aria-label="Weekly activity chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={pipelineChartData.slice(-7)}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    contentStyle={{
-                      background: 'var(--color-popover)',
-                      border: '1px solid var(--color-border)',
-                      borderRadius: '8px',
-                    }}
-                  />
-                  <Bar dataKey="value" fill="var(--color-primary)" radius={[4, 4, 0, 0]} opacity={0.85} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
+      <section aria-labelledby="ai-heading" className="mt-6">
+        <h2 id="ai-heading" className="sr-only">
+          AI recommendations
+        </h2>
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="size-4 text-primary" aria-hidden="true" />
-              Recent AI Activity
+              Recommended next actions
             </CardTitle>
+            <CardDescription>
+              Generated from deadline pressure, review scores, and fit thresholds
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-4">
-              {aiActivities.map((activity) => (
-                <li key={activity.id}>
-                  <p className="text-sm font-medium">{activity.action}</p>
-                  <p className="text-xs text-muted-foreground">{activity.target}</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    {activity.timestamp.toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
+            <ul className="grid gap-4 md:grid-cols-3">
+              {aiRecommendations.map((recommendation) => (
+                <li
+                  key={recommendation.id}
+                  className="flex flex-col rounded-lg border border-border p-4"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="text-sm font-medium leading-snug">{recommendation.title}</h3>
+                    <Badge variant={impactVariants[recommendation.impact]}>
+                      {recommendation.impact}
+                    </Badge>
+                  </div>
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                    {recommendation.rationale}
                   </p>
-                  {activity.id !== aiActivities[aiActivities.length - 1]?.id && (
-                    <Separator className="mt-4" />
-                  )}
+                  <Button variant="outline" size="sm" className="mt-4 self-start" asChild>
+                    <Link to={recommendation.actionHref}>
+                      {recommendation.actionLabel}
+                      <span className="sr-only"> for {recommendation.title}</span>
+                    </Link>
+                  </Button>
                 </li>
               ))}
             </ul>
           </CardContent>
         </Card>
-      </div>
+      </section>
+
+      <section aria-labelledby="work-heading" className="mt-6">
+        <h2 id="work-heading" className="sr-only">
+          Projects and tasks
+        </h2>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+              <div>
+                <CardTitle>Active projects</CardTitle>
+                <CardDescription>Capture and delivery work in progress</CardDescription>
+              </div>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/app/projects">All projects</Link>
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              {activeProjects.map((project) => (
+                <div key={project.id} className="space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="min-w-0 truncate text-sm font-medium">{project.name}</p>
+                    <Badge variant={healthVariants[project.health]}>
+                      {healthLabels[project.health]}
+                    </Badge>
+                  </div>
+                  <Progress
+                    value={project.progress}
+                    aria-label={`${project.name}: ${project.progress}% complete`}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {project.progress}% · {project.teamSize} people · led by {project.lead} · due{" "}
+                    {formatRelativeDate(project.dueDate)}
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>My tasks</CardTitle>
+              <CardDescription>
+                {openTasks.length} open of {tasks.length} assigned
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                {tasks.map((task) => (
+                  <li key={task.id} className="flex items-start gap-3">
+                    {task.completed ? (
+                      <CheckCircle2
+                        className="mt-0.5 size-4 shrink-0 text-success-emphasis"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <Circle
+                        className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                        aria-hidden="true"
+                      />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className={cn(
+                          "text-sm",
+                          task.completed && "text-muted-foreground line-through",
+                        )}
+                      >
+                        {task.title}
+                        <span className="sr-only">
+                          {task.completed ? " (completed)" : " (open)"}
+                        </span>
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {task.assignee} · {formatRelativeDate(task.dueDate)}
+                      </p>
+                    </div>
+                    <Badge
+                      variant={
+                        task.priority === "high"
+                          ? "destructive"
+                          : task.priority === "medium"
+                            ? "warning"
+                            : "secondary"
+                      }
+                    >
+                      {task.priority}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <section aria-labelledby="activity-heading" className="mt-6">
+        <h2 id="activity-heading" className="sr-only">
+          Activity
+        </h2>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <ChartCard
+            className="lg:col-span-2"
+            title="Weekly discovery activity"
+            description="New opportunities matched to your profile each day"
+            heightClassName="h-48"
+            rows={opportunityTrendData.map((point) => point.label)}
+            series={[
+              {
+                label: "Opportunities matched",
+                values: opportunityTrendData.map((point) => String(point.value)),
+              },
+            ]}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={opportunityTrendData}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  allowDecimals={false}
+                />
+                <Tooltip
+                  formatter={(value) => [String(value ?? 0), "Opportunities"]}
+                  contentStyle={{
+                    background: "var(--color-popover)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "8px",
+                    color: "var(--color-popover-foreground)",
+                  }}
+                />
+                <Bar dataKey="value" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="size-4 text-muted-foreground" aria-hidden="true" />
+                Recent AI activity
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ol className="space-y-4">
+                {aiActivities.map((activity, index) => (
+                  <li key={activity.id}>
+                    <p className="text-sm font-medium">{activity.action}</p>
+                    <p className="text-xs text-muted-foreground">{activity.target}</p>
+                    <time
+                      className="mt-1 block text-[11px] text-muted-foreground"
+                      dateTime={activity.timestamp.toISOString()}
+                    >
+                      {activity.timestamp.toLocaleString([], {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </time>
+                    {index < aiActivities.length - 1 && <Separator className="mt-4" />}
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
+                <Scale className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+                AI output is drafted for human review. Every generated section cites its source
+                document.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
     </PageShell>
-  )
+  );
 }

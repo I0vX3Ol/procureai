@@ -1,25 +1,25 @@
-import { Link } from '@tanstack/react-router'
+import { Link } from "@tanstack/react-router";
 
 const footerLinks = {
   Product: [
-    { label: 'Features', href: '#features' },
-    { label: 'Pricing', href: '#pricing' },
-    { label: 'Security', href: '#security' },
-    { label: 'Integrations', href: '#' },
+    { label: "Features", href: "#features" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "Security", href: "#security" },
+    { label: "Integrations", href: "#" },
   ],
   Company: [
-    { label: 'About', href: '#' },
-    { label: 'Blog', href: '#' },
-    { label: 'Careers', href: '#' },
-    { label: 'Contact', href: '#' },
+    { label: "About", href: "#" },
+    { label: "Blog", href: "#" },
+    { label: "Careers", href: "#" },
+    { label: "Contact", href: "#" },
   ],
   Legal: [
-    { label: 'Privacy', href: '#' },
-    { label: 'Terms', href: '#' },
-    { label: 'SOC 2', href: '#security' },
-    { label: 'DPA', href: '#' },
+    { label: "Privacy", href: "#" },
+    { label: "Terms", href: "#" },
+    { label: "SOC 2", href: "#security" },
+    { label: "DPA", href: "#" },
   ],
-}
+};
 
 export function LandingFooter() {
   return (
@@ -79,5 +79,5 @@ export function LandingFooter() {
         </div>
       </div>
     </footer>
-  )
+  );
 }

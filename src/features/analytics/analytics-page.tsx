@@ -1,150 +1,446 @@
+import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   Legend,
   Line,
   LineChart,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts'
+} from "recharts";
 
-import { PageShell } from '@/components/layout/page-shell'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { ChartCard } from "@/components/common/chart-card";
+import { PageShell } from "@/components/layout/page-shell";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  dashboardMetrics,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import {
+  cycleTimeData,
+  forecastData,
   opportunityTrendData,
   pipelineChartData,
+  proposalFunnelData,
   winRateChartData,
-} from '@/data/mock-data'
-import { formatCurrency, formatPercent } from '@/lib/utils'
+} from "@/data/mock-data";
+import { customers } from "@/data/workspace-data";
+import { dashboardMetrics, valueByType, weightedValue, openOpportunities } from "@/lib/metrics";
+import { formatCurrency, formatPercent } from "@/lib/utils";
+import { useWorkspace } from "@/providers/workspace-provider";
+
+const chartColors = [
+  "var(--color-primary)",
+  "var(--color-success)",
+  "var(--color-warning)",
+  "var(--color-destructive)",
+];
+
+const tooltipStyle = {
+  background: "var(--color-popover)",
+  border: "1px solid var(--color-border)",
+  borderRadius: "8px",
+  color: "var(--color-popover-foreground)",
+};
+
+const ranges = [
+  { value: "12m", label: "Last 12 months" },
+  { value: "6m", label: "Last 6 months" },
+  { value: "3m", label: "Last quarter" },
+];
 
 export function AnalyticsPage() {
+  const { opportunities } = useWorkspace();
+  const [range, setRange] = useState("12m");
+
+  const metrics = useMemo(() => dashboardMetrics(opportunities), [opportunities]);
+  const open = useMemo(() => openOpportunities(opportunities), [opportunities]);
+  const forecast = useMemo(() => weightedValue(open), [open]);
+  const mix = useMemo(() => valueByType(opportunities), [opportunities]);
+
+  const months = range === "3m" ? 3 : range === "6m" ? 6 : pipelineChartData.length;
+  const pipelineSeries = pipelineChartData.slice(-months);
+
+  const mixTotal = mix.reduce((sum, item) => sum + item.value, 0);
+  const activeCustomers = customers.filter((customer) => customer.status === "active").length;
+  const averageDeal = open.length > 0 ? metrics.pipelineValue / open.length : 0;
+
+  const summaryCards = [
+    {
+      label: "Open pipeline",
+      value: formatCurrency(metrics.pipelineValue),
+      hint: `${open.length} active pursuits`,
+    },
+    {
+      label: "Weighted forecast",
+      value: formatCurrency(forecast),
+      hint: "Probability-adjusted",
+    },
+    {
+      label: "Win rate",
+      value: formatPercent(metrics.winRate, 1),
+      hint: "Decided pursuits, trailing 12 months",
+    },
+    {
+      label: "Average deal size",
+      value: formatCurrency(averageDeal),
+      hint: `${activeCustomers} active customers`,
+    },
+  ];
+
   return (
     <PageShell
       title="Analytics"
-      description="Pipeline performance, win rates, and team activity"
+      description="Pipeline health, forecast accuracy, conversion, and cycle time"
+      breadcrumbs={[{ label: "Workspace", href: "/app" }, { label: "Analytics" }]}
+      actions={
+        <div className="flex items-center gap-2">
+          <Label htmlFor="analytics-range" className="text-sm text-muted-foreground">
+            Period
+          </Label>
+          <Select value={range} onValueChange={setRange}>
+            <SelectTrigger id="analytics-range" className="w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ranges.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      }
     >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          { label: 'Pipeline Value', value: formatCurrency(dashboardMetrics.pipelineValue) },
-          { label: 'Win Rate', value: formatPercent(dashboardMetrics.winRate, 1) },
-          { label: 'Revenue Won YTD', value: formatCurrency(dashboardMetrics.revenueWon) },
-          { label: 'Active Opportunities', value: String(dashboardMetrics.activeOpportunities) },
-        ].map((metric) => (
-          <Card key={metric.label}>
-            <CardHeader className="pb-2">
-              <CardDescription>{metric.label}</CardDescription>
-              <CardTitle className="text-2xl tabular-nums">{metric.value}</CardTitle>
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
+      <section aria-labelledby="analytics-summary">
+        <h2 id="analytics-summary" className="sr-only">
+          Summary metrics
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {summaryCards.map((metric) => (
+            <Card key={metric.label}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-normal text-muted-foreground">
+                  {metric.label}
+                </CardTitle>
+                <p className="text-2xl font-semibold tabular-nums">{metric.value}</p>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">{metric.hint}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Pipeline Growth</CardTitle>
-            <CardDescription>Monthly pipeline value trend</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64" role="img" aria-label="Pipeline growth chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={pipelineChartData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <YAxis
-                    tick={{ fontSize: 12 }}
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={(v) => `$${(v / 1_000_000).toFixed(1)}M`}
-                  />
-                  <Tooltip
-                    formatter={(value) => [formatCurrency(Number(value ?? 0)), 'Pipeline']}
-                    contentStyle={{
-                      background: 'var(--color-popover)',
-                      border: '1px solid var(--color-border)',
-                      borderRadius: '8px',
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke="var(--color-primary)"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+      <section aria-labelledby="analytics-pipeline" className="mt-6">
+        <h2 id="analytics-pipeline" className="sr-only">
+          Pipeline and forecast
+        </h2>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <ChartCard
+            title="Pipeline growth"
+            description="Qualified pipeline value by month"
+            rows={pipelineSeries.map((point) => point.label)}
+            series={[
+              {
+                label: "Pipeline value",
+                values: pipelineSeries.map((point) => formatCurrency(point.value)),
+              },
+            ]}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={pipelineSeries}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => `$${(v / 1_000_000).toFixed(1)}M`}
+                />
+                <Tooltip
+                  formatter={(value) => [formatCurrency(Number(value ?? 0)), "Pipeline"]}
+                  contentStyle={tooltipStyle}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="var(--color-primary)"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartCard>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Win Rate by Quarter</CardTitle>
-            <CardDescription>Your win rate vs industry benchmark</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64" role="img" aria-label="Win rate comparison chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={winRateChartData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <YAxis
-                    tick={{ fontSize: 12 }}
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={(v) => `${v}%`}
-                  />
-                  <Tooltip
-                    formatter={(value, name) => [
-                      `${Number(value ?? 0)}%`,
-                      name === 'value' ? 'Your win rate' : 'Benchmark',
-                    ]}
-                    contentStyle={{
-                      background: 'var(--color-popover)',
-                      border: '1px solid var(--color-border)',
-                      borderRadius: '8px',
-                    }}
-                  />
-                  <Legend />
-                  <Bar dataKey="value" name="Your win rate" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="secondary" name="Benchmark" fill="var(--color-muted-foreground)" radius={[4, 4, 0, 0]} opacity={0.4} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+          <ChartCard
+            title="Forecast vs quota"
+            description="Committed and weighted forecast against the quarterly target"
+            rows={forecastData.map((point) => point.label)}
+            series={[
+              {
+                label: "Committed",
+                values: forecastData.map((point) => formatCurrency(point.committed)),
+              },
+              {
+                label: "Weighted",
+                values: forecastData.map((point) => formatCurrency(point.weighted)),
+              },
+              {
+                label: "Target",
+                values: forecastData.map((point) => formatCurrency(point.target)),
+              },
+            ]}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={forecastData}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => `$${(v / 1_000_000).toFixed(1)}M`}
+                />
+                <Tooltip
+                  formatter={(value) => formatCurrency(Number(value ?? 0))}
+                  contentStyle={tooltipStyle}
+                />
+                <Legend />
+                <Bar
+                  dataKey="committed"
+                  name="Committed"
+                  fill="var(--color-primary)"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar
+                  dataKey="weighted"
+                  name="Weighted"
+                  fill="var(--color-success)"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar
+                  dataKey="target"
+                  name="Target"
+                  fill="var(--color-muted-foreground)"
+                  radius={[4, 4, 0, 0]}
+                  opacity={0.35}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        </div>
+      </section>
 
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Weekly Discovery Activity</CardTitle>
-            <CardDescription>Opportunities discovered and qualified per day</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-48" role="img" aria-label="Weekly activity chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={opportunityTrendData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    contentStyle={{
-                      background: 'var(--color-popover)',
-                      border: '1px solid var(--color-border)',
-                      borderRadius: '8px',
-                    }}
-                  />
-                  <Bar dataKey="value" fill="var(--color-primary)" radius={[4, 4, 0, 0]} opacity={0.85} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <section aria-labelledby="analytics-conversion" className="mt-6">
+        <h2 id="analytics-conversion" className="sr-only">
+          Conversion and win rate
+        </h2>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <ChartCard
+            title="Capture funnel"
+            description="Opportunities reaching each stage over the trailing twelve months"
+            rows={proposalFunnelData.map((point) => point.label)}
+            series={[
+              {
+                label: "Opportunities",
+                values: proposalFunnelData.map((point) => String(point.value)),
+              },
+              {
+                label: "Conversion from discovery",
+                values: proposalFunnelData.map(
+                  (point) =>
+                    `${((point.value / (proposalFunnelData[0]?.value ?? 1)) * 100).toFixed(1)}%`,
+                ),
+              },
+            ]}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={proposalFunnelData} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis
+                  type="category"
+                  dataKey="label"
+                  width={92}
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  formatter={(value) => [String(value ?? 0), "Opportunities"]}
+                  contentStyle={tooltipStyle}
+                />
+                <Bar dataKey="value" fill="var(--color-primary)" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+
+          <ChartCard
+            title="Win rate by quarter"
+            description="Your win rate compared with the industry benchmark"
+            rows={winRateChartData.map((point) => point.label)}
+            series={[
+              {
+                label: "Your win rate",
+                values: winRateChartData.map((point) => `${point.value}%`),
+              },
+              {
+                label: "Benchmark",
+                values: winRateChartData.map((point) => `${point.secondary ?? 0}%`),
+              },
+            ]}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={winRateChartData}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => `${v}%`}
+                />
+                <Tooltip
+                  formatter={(value, name) => [`${Number(value ?? 0)}%`, String(name)]}
+                  contentStyle={tooltipStyle}
+                />
+                <Legend />
+                <Bar
+                  dataKey="value"
+                  name="Your win rate"
+                  fill="var(--color-primary)"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar
+                  dataKey="secondary"
+                  name="Benchmark"
+                  fill="var(--color-muted-foreground)"
+                  radius={[4, 4, 0, 0]}
+                  opacity={0.4}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        </div>
+      </section>
+
+      <section aria-labelledby="analytics-operations" className="mt-6">
+        <h2 id="analytics-operations" className="sr-only">
+          Portfolio mix and operations
+        </h2>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <ChartCard
+            title="Pipeline by sector"
+            description="Share of open pipeline value"
+            rows={mix.map((point) => point.label)}
+            series={[
+              { label: "Value", values: mix.map((point) => formatCurrency(point.value)) },
+              {
+                label: "Share",
+                values: mix.map((point) =>
+                  mixTotal ? `${((point.value / mixTotal) * 100).toFixed(1)}%` : "0%",
+                ),
+              },
+            ]}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={mix}
+                  dataKey="value"
+                  nameKey="label"
+                  innerRadius={50}
+                  outerRadius={80}
+                  paddingAngle={2}
+                >
+                  {mix.map((entry, index) => (
+                    <Cell
+                      key={entry.label}
+                      fill={chartColors[index % chartColors.length]}
+                      stroke="var(--color-card)"
+                    />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value, name) => [formatCurrency(Number(value ?? 0)), String(name)]}
+                  contentStyle={tooltipStyle}
+                />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </ChartCard>
+
+          <ChartCard
+            title="Median cycle time"
+            description="Days spent in each capture stage"
+            rows={cycleTimeData.map((point) => point.label)}
+            series={[
+              { label: "Days", values: cycleTimeData.map((point) => `${point.value} days`) },
+            ]}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={cycleTimeData}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => `${v}d`}
+                />
+                <Tooltip
+                  formatter={(value) => [`${Number(value ?? 0)} days`, "Median"]}
+                  contentStyle={tooltipStyle}
+                />
+                <Bar dataKey="value" fill="var(--color-warning)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+
+          <ChartCard
+            title="Weekly discovery"
+            description="New matched opportunities per day"
+            rows={opportunityTrendData.map((point) => point.label)}
+            series={[
+              {
+                label: "Opportunities",
+                values: opportunityTrendData.map((point) => String(point.value)),
+              },
+            ]}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={opportunityTrendData}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  allowDecimals={false}
+                />
+                <Tooltip
+                  formatter={(value) => [String(value ?? 0), "Opportunities"]}
+                  contentStyle={tooltipStyle}
+                />
+                <Bar dataKey="value" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        </div>
+      </section>
     </PageShell>
-  )
+  );
 }

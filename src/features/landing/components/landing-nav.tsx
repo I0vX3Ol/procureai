@@ -1,40 +1,38 @@
-import { Link } from '@tanstack/react-router'
-import { Menu, Moon, Sun, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Link } from "@tanstack/react-router";
+import { Menu, Moon, Sun, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { useTheme } from '@/providers/theme-provider'
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useTheme } from "@/providers/theme-provider";
 
 const navLinks = [
-  { label: 'Features', href: '#features' },
-  { label: 'Workflow', href: '#workflow' },
-  { label: 'Pricing', href: '#pricing' },
-  { label: 'FAQ', href: '#faq' },
-  { label: 'Security', href: '#security' },
-]
+  { label: "Features", href: "#features" },
+  { label: "Workflow", href: "#workflow" },
+  { label: "Pricing", href: "#pricing" },
+  { label: "FAQ", href: "#faq" },
+  { label: "Security", href: "#security" },
+];
 
 export function LandingNav() {
-  const { resolvedTheme, setTheme } = useTheme()
-  const [scrolled, setScrolled] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const { resolvedTheme, setTheme } = useTheme();
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-  const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
+  const toggleTheme = () => setTheme(resolvedTheme === "dark" ? "light" : "dark");
 
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 transition-colors duration-200',
-        scrolled
-          ? 'border-b border-border/60 bg-background/80 backdrop-blur-lg'
-          : 'bg-transparent',
+        "sticky top-0 z-50 transition-colors duration-200",
+        scrolled ? "border-b border-border/60 bg-background/80 backdrop-blur-lg" : "bg-transparent",
       )}
     >
       <div className="page-container flex h-14 items-center justify-between gap-4">
@@ -62,10 +60,10 @@ export function LandingNav() {
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            aria-label={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             className="size-8"
           >
-            {resolvedTheme === 'dark' ? (
+            {resolvedTheme === "dark" ? (
               <Sun className="size-4" aria-hidden="true" />
             ) : (
               <Moon className="size-4" aria-hidden="true" />
@@ -88,7 +86,7 @@ export function LandingNav() {
             size="icon"
             className="size-8 md:hidden"
             onClick={() => setMobileOpen((o) => !o)}
-            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
             aria-controls="mobile-nav-menu"
           >
@@ -102,7 +100,10 @@ export function LandingNav() {
       </div>
 
       {mobileOpen && (
-        <div id="mobile-nav-menu" className="border-t border-border/60 bg-background/95 backdrop-blur-lg md:hidden">
+        <div
+          id="mobile-nav-menu"
+          className="border-t border-border/60 bg-background/95 backdrop-blur-lg md:hidden"
+        >
           <nav className="page-container flex flex-col gap-1 py-3" aria-label="Mobile">
             {navLinks.map((link) => (
               <a
@@ -132,5 +133,5 @@ export function LandingNav() {
         </div>
       )}
     </header>
-  )
+  );
 }

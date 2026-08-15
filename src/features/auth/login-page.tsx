@@ -1,31 +1,31 @@
-import { Link, useNavigate } from '@tanstack/react-router'
-import { Bot } from 'lucide-react'
-import { useState } from 'react'
-import { toast } from 'sonner'
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Bot } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function LoginPage() {
-  const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!email || !password) {
-      toast.error('Please enter your email and password')
-      return
+      toast.error("Please enter your email and password");
+      return;
     }
-    setLoading(true)
+    setLoading(true);
     setTimeout(() => {
-      toast.success('Welcome back!')
-      navigate({ to: '/app' })
-    }, 600)
-  }
+      toast.success("Welcome back!");
+      navigate({ to: "/app" });
+    }, 600);
+  };
 
   return (
     <main
@@ -65,8 +65,9 @@ export function LoginPage() {
                   type="button"
                   className="text-xs text-primary hover:underline"
                   onClick={() =>
-                    toast.info('Check your email', {
-                      description: 'If an account exists for that email, a reset link is on its way.',
+                    toast.info("Check your email", {
+                      description:
+                        "If an account exists for that email, a reset link is on its way.",
                     })
                   }
                 >
@@ -83,11 +84,11 @@ export function LoginPage() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing in…' : 'Sign in'}
+              {loading ? "Signing in…" : "Sign in"}
             </Button>
           </form>
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{' '}
+            Don&apos;t have an account?{" "}
             <Link to="/signup" className="font-medium text-primary hover:underline">
               Start free trial
             </Link>
@@ -95,5 +96,5 @@ export function LoginPage() {
         </CardContent>
       </Card>
     </main>
-  )
+  );
 }

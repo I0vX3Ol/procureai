@@ -1,23 +1,23 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 
-import { LandingPage } from '@/features/landing/landing-page'
+import { LandingPage } from "@/features/landing/landing-page";
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: 'ProcureAI — Win more government and enterprise contracts' },
+      { title: "ProcureAI — Win more government and enterprise contracts" },
       {
-        name: 'description',
+        name: "description",
         content:
-          'AI-powered procurement intelligence: discover opportunities, qualify bids, build proposals, and track your pipeline in one workspace.',
+          "AI-powered procurement intelligence: discover opportunities, qualify bids, build proposals, and track your pipeline in one workspace.",
       },
-      { property: 'og:title', content: 'ProcureAI — AI procurement intelligence' },
+      { property: "og:title", content: "ProcureAI — AI procurement intelligence" },
       {
-        property: 'og:description',
+        property: "og:description",
         content:
-          'Discover opportunities, qualify bids, and build winning proposals with AI assistance.',
+          "Discover opportunities, qualify bids, and build winning proposals with AI assistance.",
       },
     ],
   }),
   component: LandingPage,
-})
+});

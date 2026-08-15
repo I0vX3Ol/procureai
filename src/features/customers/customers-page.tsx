@@ -1,64 +1,64 @@
-import { Building2, Mail, Phone, Search, Users } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import { toast } from 'sonner'
+import { Building2, Mail, Phone, Search, Users } from "lucide-react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 
-import { EmptyState } from '@/components/common/empty-state'
-import { PageShell } from '@/components/layout/page-shell'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
-import { opportunities, projects } from '@/data/mock-data'
-import { customers } from '@/data/workspace-data'
-import { cn, formatCurrency, formatRelativeDate } from '@/lib/utils'
-import type { Customer } from '@/types/workspace'
+import { EmptyState } from "@/components/common/empty-state";
+import { PageShell } from "@/components/layout/page-shell";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { opportunities, projects } from "@/data/mock-data";
+import { customers } from "@/data/workspace-data";
+import { cn, formatCurrency, formatRelativeDate } from "@/lib/utils";
+import type { Customer } from "@/types/workspace";
 
-const sectorLabels: Record<Customer['sector'], string> = {
-  federal: 'Federal',
-  state_local: 'State & Local',
-  enterprise: 'Enterprise',
-  education: 'Education',
-}
+const sectorLabels: Record<Customer["sector"], string> = {
+  federal: "Federal",
+  state_local: "State & Local",
+  enterprise: "Enterprise",
+  education: "Education",
+};
 
-const statusVariant: Record<Customer['status'], 'success' | 'warning' | 'secondary'> = {
-  active: 'success',
-  prospect: 'warning',
-  dormant: 'secondary',
-}
+const statusVariant: Record<Customer["status"], "success" | "warning" | "secondary"> = {
+  active: "success",
+  prospect: "warning",
+  dormant: "secondary",
+};
 
-const sectorFilters: Array<{ value: Customer['sector'] | 'all'; label: string }> = [
-  { value: 'all', label: 'All sectors' },
-  { value: 'federal', label: 'Federal' },
-  { value: 'state_local', label: 'State & Local' },
-  { value: 'enterprise', label: 'Enterprise' },
-]
+const sectorFilters: Array<{ value: Customer["sector"] | "all"; label: string }> = [
+  { value: "all", label: "All sectors" },
+  { value: "federal", label: "Federal" },
+  { value: "state_local", label: "State & Local" },
+  { value: "enterprise", label: "Enterprise" },
+];
 
 export function CustomersPage() {
-  const [search, setSearch] = useState('')
-  const [sector, setSector] = useState<Customer['sector'] | 'all'>('all')
-  const [selectedId, setSelectedId] = useState(customers[0]?.id ?? '')
+  const [search, setSearch] = useState("");
+  const [sector, setSector] = useState<Customer["sector"] | "all">("all");
+  const [selectedId, setSelectedId] = useState(customers[0]?.id ?? "");
 
   const filtered = useMemo(() => {
-    const term = search.trim().toLowerCase()
+    const term = search.trim().toLowerCase();
     return customers.filter((customer) => {
-      const matchesSector = sector === 'all' || customer.sector === sector
+      const matchesSector = sector === "all" || customer.sector === sector;
       const matchesTerm =
         !term ||
         customer.name.toLowerCase().includes(term) ||
         customer.location.toLowerCase().includes(term) ||
-        customer.relationshipOwner.toLowerCase().includes(term)
-      return matchesSector && matchesTerm
-    })
-  }, [search, sector])
+        customer.relationshipOwner.toLowerCase().includes(term);
+      return matchesSector && matchesTerm;
+    });
+  }, [search, sector]);
 
-  const selected = filtered.find((customer) => customer.id === selectedId) ?? filtered[0] ?? null
+  const selected = filtered.find((customer) => customer.id === selectedId) ?? filtered[0] ?? null;
 
   return (
     <PageShell
       title="Customers"
       description="Manage agency relationships and past performance references."
-      breadcrumbs={[{ label: 'Workspace', href: '/app' }, { label: 'Customers' }]}
+      breadcrumbs={[{ label: "Workspace", href: "/app" }, { label: "Customers" }]}
       fullWidth
     >
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -80,7 +80,7 @@ export function CustomersPage() {
             <Button
               key={filter.value}
               size="sm"
-              variant={sector === filter.value ? 'default' : 'outline'}
+              variant={sector === filter.value ? "default" : "outline"}
               aria-pressed={sector === filter.value}
               onClick={() => setSector(filter.value)}
             >
@@ -95,7 +95,13 @@ export function CustomersPage() {
           icon={Users}
           title="No customers match your filters"
           description="Adjust your search term or choose a different sector."
-          action={{ label: 'Clear filters', onClick: () => { setSearch(''); setSector('all') } }}
+          action={{
+            label: "Clear filters",
+            onClick: () => {
+              setSearch("");
+              setSector("all");
+            },
+          }}
         />
       ) : (
         <div className="grid gap-4 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
@@ -105,12 +111,12 @@ export function CustomersPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedId(customer.id)}
-                  aria-current={selected?.id === customer.id ? 'true' : undefined}
+                  aria-current={selected?.id === customer.id ? "true" : undefined}
                   className={cn(
-                    'w-full rounded-xl border bg-card p-4 text-left transition-colors',
+                    "w-full rounded-xl border bg-card p-4 text-left transition-colors",
                     selected?.id === customer.id
-                      ? 'border-primary/60 bg-accent/40'
-                      : 'border-border hover:border-primary/40',
+                      ? "border-primary/60 bg-accent/40"
+                      : "border-border hover:border-primary/40",
                   )}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -123,7 +129,7 @@ export function CustomersPage() {
                     <Badge variant={statusVariant[customer.status]}>{customer.status}</Badge>
                   </div>
                   <p className="mt-3 text-xs text-muted-foreground">
-                    {customer.openOpportunityIds.length} open ·{' '}
+                    {customer.openOpportunityIds.length} open ·{" "}
                     {formatCurrency(customer.lifetimeValue)} lifetime
                   </p>
                 </button>
@@ -135,14 +141,14 @@ export function CustomersPage() {
         </div>
       )}
     </PageShell>
-  )
+  );
 }
 
 function CustomerDetail({ customer }: { customer: Customer }) {
   const relatedOpportunities = opportunities.filter((opportunity) =>
     customer.openOpportunityIds.includes(opportunity.id),
-  )
-  const relatedProjects = projects.filter((project) => customer.projectIds.includes(project.id))
+  );
+  const relatedProjects = projects.filter((project) => customer.projectIds.includes(project.id));
 
   return (
     <div className="space-y-4">
@@ -151,7 +157,7 @@ function CustomerDetail({ customer }: { customer: Customer }) {
           <div className="min-w-0">
             <CardTitle className="text-base">{customer.name}</CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
-              {sectorLabels[customer.sector]} · {customer.location} · Owner{' '}
+              {sectorLabels[customer.sector]} · {customer.location} · Owner{" "}
               {customer.relationshipOwner}
             </p>
           </div>
@@ -159,12 +165,12 @@ function CustomerDetail({ customer }: { customer: Customer }) {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => toast.success('Activity logged', { description: customer.name })}
+              onClick={() => toast.success("Activity logged", { description: customer.name })}
             >
               Log activity
             </Button>
             <Button size="sm" asChild>
-              <a href={`mailto:${customer.contacts[0]?.email ?? ''}`}>
+              <a href={`mailto:${customer.contacts[0]?.email ?? ""}`}>
                 <Mail className="size-4" aria-hidden="true" />
                 Email
               </a>
@@ -199,7 +205,7 @@ function CustomerDetail({ customer }: { customer: Customer }) {
                   </a>
                   <a
                     className="flex items-center gap-1.5 text-muted-foreground hover:underline"
-                    href={`tel:${contact.phone.replace(/\s/g, '')}`}
+                    href={`tel:${contact.phone.replace(/\s/g, "")}`}
                   >
                     <Phone className="size-3.5" aria-hidden="true" />
                     {contact.phone}
@@ -243,7 +249,7 @@ function CustomerDetail({ customer }: { customer: Customer }) {
                 <div key={opportunity.id} className="rounded-lg border border-border p-3">
                   <p className="text-sm font-medium">{opportunity.title}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {formatCurrency(opportunity.value)} · Due{' '}
+                    {formatCurrency(opportunity.value)} · Due{" "}
                     {formatRelativeDate(opportunity.deadline)} · Fit {opportunity.fitScore}%
                   </p>
                 </div>
@@ -267,7 +273,7 @@ function CustomerDetail({ customer }: { customer: Customer }) {
                 <div key={project.id} className="rounded-lg border border-border p-3">
                   <p className="text-sm font-medium">{project.name}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {project.status} · {project.progress}% complete · due{' '}
+                    {project.status} · {project.progress}% complete · due{" "}
                     {formatRelativeDate(project.dueDate)}
                   </p>
                 </div>
@@ -277,7 +283,7 @@ function CustomerDetail({ customer }: { customer: Customer }) {
         </Card>
       </div>
     </div>
-  )
+  );
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
@@ -286,5 +292,5 @@ function Metric({ label, value }: { label: string; value: string }) {
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-0.5 text-sm font-semibold">{value}</p>
     </div>
-  )
+  );
 }

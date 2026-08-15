@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   BarChart3,
@@ -11,77 +11,92 @@ import {
   Target,
   Users,
   Zap,
-} from 'lucide-react'
-import { motion } from 'motion/react'
+} from "lucide-react";
+import { motion } from "motion/react";
 
-import { LandingFooter } from '@/features/landing/components/landing-footer'
-import { LandingNav } from '@/features/landing/components/landing-nav'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  enterpriseLogos,
-  faqItems,
-  pricingPlans,
-  testimonials,
-} from '@/data/mock-data'
-import { cn } from '@/lib/utils'
+import { LandingFooter } from "@/features/landing/components/landing-footer";
+import { LandingNav } from "@/features/landing/components/landing-nav";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { enterpriseLogos, faqItems, pricingPlans, testimonials } from "@/data/mock-data";
+import { cn } from "@/lib/utils";
 
 const features = [
   {
     icon: FileSearch,
-    title: 'Opportunity Discovery',
+    title: "Opportunity Discovery",
     description:
-      'Aggregate SAM.gov, state portals, and enterprise feeds. AI matches opportunities to your NAICS codes and past performance.',
+      "Aggregate SAM.gov, state portals, and enterprise feeds. AI matches opportunities to your NAICS codes and past performance.",
   },
   {
     icon: Sparkles,
-    title: 'AI Document Analysis',
+    title: "AI Document Analysis",
     description:
-      'Extract requirements, deadlines, evaluation criteria, and compliance items from RFPs up to 500 pages in minutes.',
+      "Extract requirements, deadlines, evaluation criteria, and compliance items from RFPs up to 500 pages in minutes.",
   },
   {
     icon: Target,
-    title: 'Pipeline Management',
+    title: "Pipeline Management",
     description:
-      'Track every bid from discovery through award with fit scores, stage gates, and deadline alerts.',
+      "Track every bid from discovery through award with fit scores, stage gates, and deadline alerts.",
   },
   {
     icon: Bot,
-    title: 'Proposal Assistant',
+    title: "Proposal Assistant",
     description:
-      'Draft technical volumes, executive summaries, and compliance matrices with cited source references.',
+      "Draft technical volumes, executive summaries, and compliance matrices with cited source references.",
   },
   {
     icon: BarChart3,
-    title: 'Win Rate Analytics',
+    title: "Win Rate Analytics",
     description:
-      'Measure pipeline velocity, conversion by stage, and revenue attribution across your portfolio.',
+      "Measure pipeline velocity, conversion by stage, and revenue attribution across your portfolio.",
   },
   {
     icon: Users,
-    title: 'Team Collaboration',
+    title: "Team Collaboration",
     description:
-      'Assign tasks, share documents, and coordinate capture teams with role-based access controls.',
+      "Assign tasks, share documents, and coordinate capture teams with role-based access controls.",
   },
-]
+];
 
 const workflowSteps = [
-  { step: '01', title: 'Discover', description: 'AI scans procurement sources and surfaces high-fit opportunities.' },
-  { step: '02', title: 'Analyze', description: 'Upload RFPs for instant requirement extraction and risk assessment.' },
-  { step: '03', title: 'Qualify', description: 'Score fit, estimate win probability, and decide go/no-go.' },
-  { step: '04', title: 'Respond', description: 'Build proposals with AI drafts, compliance checks, and team review.' },
-  { step: '05', title: 'Win', description: 'Track outcomes, capture lessons learned, and refine your strategy.' },
-]
+  {
+    step: "01",
+    title: "Discover",
+    description: "AI scans procurement sources and surfaces high-fit opportunities.",
+  },
+  {
+    step: "02",
+    title: "Analyze",
+    description: "Upload RFPs for instant requirement extraction and risk assessment.",
+  },
+  {
+    step: "03",
+    title: "Qualify",
+    description: "Score fit, estimate win probability, and decide go/no-go.",
+  },
+  {
+    step: "04",
+    title: "Respond",
+    description: "Build proposals with AI drafts, compliance checks, and team review.",
+  },
+  {
+    step: "05",
+    title: "Win",
+    description: "Track outcomes, capture lessons learned, and refine your strategy.",
+  },
+];
 
 const securityItems = [
-  'SOC 2 Type II certified infrastructure',
-  'AES-256 encryption at rest and TLS 1.3 in transit',
-  'Role-based access control with SSO/SAML on Enterprise',
-  'Organization-level data isolation',
-  'Audit logs and custom data retention policies',
-  'FedRAMP-aligned security controls',
-]
+  "SOC 2 Type II certified infrastructure",
+  "AES-256 encryption at rest and TLS 1.3 in transit",
+  "Role-based access control with SSO/SAML on Enterprise",
+  "Organization-level data isolation",
+  "Audit logs and custom data retention policies",
+  "FedRAMP-aligned security controls",
+];
 
 export function LandingPage() {
   return (
@@ -104,12 +119,11 @@ export function LandingPage() {
                   AI-powered procurement intelligence
                 </Badge>
                 <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-                  Win more bids with{' '}
-                  <span className="text-primary">AI-driven</span> procurement
+                  Win more bids with <span className="text-primary">AI-driven</span> procurement
                 </h1>
                 <p className="mt-6 text-balance text-lg text-muted-foreground sm:text-xl">
-                  Discover opportunities, analyze RFPs in minutes, and build winning proposals —
-                  all in one platform built for modern procurement teams.
+                  Discover opportunities, analyze RFPs in minutes, and build winning proposals — all
+                  in one platform built for modern procurement teams.
                 </p>
                 <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
                   <Button size="lg" asChild>
@@ -143,15 +157,18 @@ export function LandingPage() {
                 </div>
                 <div className="grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { label: 'Pipeline Value', value: '$4.85M', change: '+12.4%' },
-                    { label: 'Win Rate', value: '34.2%', change: '+2.1%' },
-                    { label: 'Active Opps', value: '47', change: '+8 new' },
-                    { label: 'Revenue Won', value: '$1.24M', change: '+18.6%' },
+                    { label: "Pipeline Value", value: "$4.85M", change: "+12.4%" },
+                    { label: "Win Rate", value: "34.2%", change: "+2.1%" },
+                    { label: "Active Opps", value: "47", change: "+8 new" },
+                    { label: "Revenue Won", value: "$1.24M", change: "+18.6%" },
                   ].map((metric) => (
-                    <div key={metric.label} className="rounded-lg border border-border bg-background p-4">
+                    <div
+                      key={metric.label}
+                      className="rounded-lg border border-border bg-background p-4"
+                    >
                       <p className="text-xs text-muted-foreground">{metric.label}</p>
                       <p className="mt-1 text-xl font-semibold tabular-nums">{metric.value}</p>
-                      <p className="mt-1 text-xs text-success">{metric.change}</p>
+                      <p className="mt-1 text-xs text-success-emphasis">{metric.change}</p>
                     </div>
                   ))}
                 </div>
@@ -196,7 +213,9 @@ export function LandingPage() {
                       <feature.icon className="size-5 text-primary" aria-hidden="true" />
                     </div>
                     <CardTitle className="text-lg">{feature.title}</CardTitle>
-                    <CardDescription className="leading-relaxed">{feature.description}</CardDescription>
+                    <CardDescription className="leading-relaxed">
+                      {feature.description}
+                    </CardDescription>
                   </CardHeader>
                 </Card>
               ))}
@@ -275,12 +294,14 @@ export function LandingPage() {
                 <Card
                   key={plan.name}
                   className={cn(
-                    'relative border-border/60',
-                    plan.highlighted && 'border-primary shadow-md ring-1 ring-primary/20',
+                    "relative border-border/60",
+                    plan.highlighted && "border-primary shadow-md ring-1 ring-primary/20",
                   )}
                 >
                   {plan.highlighted && (
-                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Most popular</Badge>
+                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      Most popular
+                    </Badge>
                   )}
                   <CardHeader>
                     <CardTitle>{plan.name}</CardTitle>
@@ -295,7 +316,7 @@ export function LandingPage() {
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex items-start gap-2 text-sm">
                           <CheckCircle2
-                            className="mt-0.5 size-4 shrink-0 text-success"
+                            className="mt-0.5 size-4 shrink-0 text-success-emphasis"
                             aria-hidden="true"
                           />
                           {feature}
@@ -304,7 +325,7 @@ export function LandingPage() {
                     </ul>
                     <Button
                       className="mt-8 w-full"
-                      variant={plan.highlighted ? 'default' : 'outline'}
+                      variant={plan.highlighted ? "default" : "outline"}
                       asChild
                     >
                       <Link to="/signup">Start free trial</Link>
@@ -328,8 +349,8 @@ export function LandingPage() {
                   Enterprise-grade security
                 </h2>
                 <p className="mt-4 text-muted-foreground">
-                  Your bid data is sensitive. ProcureAI is built with the security controls
-                  required for government and enterprise procurement workflows.
+                  Your bid data is sensitive. ProcureAI is built with the security controls required
+                  for government and enterprise procurement workflows.
                 </p>
                 <Button className="mt-8" variant="outline" asChild>
                   <Link to="/signup">
@@ -341,7 +362,10 @@ export function LandingPage() {
               <ul className="space-y-4">
                 {securityItems.map((item) => (
                   <li key={item} className="flex items-start gap-3">
-                    <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-hidden="true" />
+                    <CheckCircle2
+                      className="mt-0.5 size-5 shrink-0 text-success-emphasis"
+                      aria-hidden="true"
+                    />
                     <span className="text-sm">{item}</span>
                   </li>
                 ))}
@@ -366,7 +390,9 @@ export function LandingPage() {
                       aria-hidden="true"
                     />
                   </summary>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.answer}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                    {item.answer}
+                  </p>
                 </details>
               ))}
             </div>
@@ -407,5 +433,5 @@ export function LandingPage() {
 
       <LandingFooter />
     </div>
-  )
+  );
 }

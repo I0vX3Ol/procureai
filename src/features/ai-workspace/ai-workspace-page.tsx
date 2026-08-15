@@ -1,101 +1,123 @@
-import { FileText, Loader2, Send, Sparkles } from 'lucide-react'
-import { useState } from 'react'
+import { FileText, Loader2, Send, Sparkles } from "lucide-react";
+import { useState } from "react";
 
-import { PageShell } from '@/components/layout/page-shell'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { opportunities } from '@/data/mock-data'
-import { aiService, type AIAnalysisRequest, type AIChatMessage } from '@/lib/ai/service'
-import { cn } from '@/lib/utils'
+import { PageShell } from "@/components/layout/page-shell";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { aiService, type AIAnalysisRequest, type AIChatMessage } from "@/lib/ai/service";
+import { cn, formatCurrency } from "@/lib/utils";
+import { useWorkspace } from "@/providers/workspace-provider";
 
-const analysisTypes: { type: AIAnalysisRequest['type']; label: string }[] = [
-  { type: 'summary', label: 'Executive Summary' },
-  { type: 'requirements', label: 'Requirements' },
-  { type: 'deadlines', label: 'Deadlines' },
-  { type: 'risk', label: 'Risk Analysis' },
-  { type: 'compliance', label: 'Compliance' },
-  { type: 'fit', label: 'Fit Score' },
-]
+const analysisTypes: { type: AIAnalysisRequest["type"]; label: string }[] = [
+  { type: "summary", label: "Executive Summary" },
+  { type: "requirements", label: "Requirements" },
+  { type: "deadlines", label: "Deadlines" },
+  { type: "risk", label: "Risk Analysis" },
+  { type: "compliance", label: "Compliance" },
+  { type: "fit", label: "Fit Score" },
+];
+
+const suggestedPrompts = [
+  "What are the mandatory certifications?",
+  "When is the proposal due?",
+  "Summarise the evaluation criteria.",
+  "What are the biggest compliance risks?",
+];
 
 export function AIWorkspacePage() {
-  const [selectedOpp, setSelectedOpp] = useState(opportunities[0]?.id ?? '')
-  const [analysisType, setAnalysisType] = useState<AIAnalysisRequest['type']>('summary')
-  const [analysisResult, setAnalysisResult] = useState<string | null>(null)
-  const [analysisLoading, setAnalysisLoading] = useState(false)
-  const [chatInput, setChatInput] = useState('')
+  const { opportunities } = useWorkspace();
+  const [selectedOpp, setSelectedOpp] = useState(opportunities[0]?.id ?? "");
+  const [analysisType, setAnalysisType] = useState<AIAnalysisRequest["type"]>("summary");
+  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [chatInput, setChatInput] = useState("");
   const [messages, setMessages] = useState<AIChatMessage[]>([
     {
-      id: 'welcome',
-      role: 'assistant',
+      id: "welcome",
+      role: "assistant",
       content:
-        'Ask me anything about your uploaded RFP documents. I can help with requirements, deadlines, compliance, and proposal drafting.',
+        "Ask me anything about your uploaded RFP documents. I can help with requirements, deadlines, compliance, and proposal drafting.",
       timestamp: new Date(),
     },
-  ])
-  const [chatLoading, setChatLoading] = useState(false)
+  ]);
+  const [chatLoading, setChatLoading] = useState(false);
 
   const runAnalysis = async () => {
-    setAnalysisLoading(true)
-    setAnalysisResult(null)
+    setAnalysisLoading(true);
+    setAnalysisResult(null);
     try {
       const result = await aiService.analyzeDocument({
         documentId: selectedOpp,
         type: analysisType,
-      })
-      setAnalysisResult(result.content)
+      });
+      setAnalysisResult(result.content);
     } finally {
-      setAnalysisLoading(false)
+      setAnalysisLoading(false);
     }
-  }
+  };
 
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!chatInput.trim() || chatLoading) return
+  const ask = async (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed || chatLoading) return;
 
     const userMessage: AIChatMessage = {
       id: crypto.randomUUID(),
-      role: 'user',
-      content: chatInput.trim(),
+      role: "user",
+      content: trimmed,
       timestamp: new Date(),
-    }
-    setMessages((prev) => [...prev, userMessage])
-    setChatInput('')
-    setChatLoading(true)
+    };
+    setMessages((prev) => [...prev, userMessage]);
+    setChatInput("");
+    setChatLoading(true);
 
     try {
-      const response = await aiService.chat([selectedOpp], userMessage.content)
-      setMessages((prev) => [...prev, response])
+      const response = await aiService.chat([selectedOpp], trimmed);
+      setMessages((prev) => [...prev, response]);
     } finally {
-      setChatLoading(false)
+      setChatLoading(false);
     }
-  }
+  };
 
-  const selectedOpportunity = opportunities.find((o) => o.id === selectedOpp)
+  const sendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    void ask(chatInput);
+  };
+
+  const selectedOpportunity = opportunities.find((o) => o.id === selectedOpp);
 
   return (
     <PageShell
       title="AI Workspace"
-      description="Analyze RFPs, extract requirements, and chat with your documents"
+      description="Analyse RFPs, extract requirements, and chat with your documents"
+      breadcrumbs={[{ label: "Workspace", href: "/app" }, { label: "AI Workspace" }]}
     >
-      <div className="mb-6 flex flex-wrap gap-2">
-        {opportunities.slice(0, 4).map((opp) => (
-          <Button
-            key={opp.id}
-            variant={selectedOpp === opp.id ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => {
-              setSelectedOpp(opp.id)
-              setAnalysisResult(null)
-            }}
-          >
-            <FileText className="size-3.5" aria-hidden="true" />
-            {opp.title.length > 40 ? `${opp.title.slice(0, 40)}…` : opp.title}
-          </Button>
-        ))}
+      <div className="mb-6">
+        <Label className="text-sm font-medium">Working context</Label>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          Choose the opportunity the AI should reason about.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Select opportunity">
+          {opportunities.slice(0, 5).map((opp) => (
+            <Button
+              key={opp.id}
+              variant={selectedOpp === opp.id ? "default" : "outline"}
+              size="sm"
+              aria-pressed={selectedOpp === opp.id}
+              onClick={() => {
+                setSelectedOpp(opp.id);
+                setAnalysisResult(null);
+              }}
+            >
+              <FileText className="size-3.5" aria-hidden="true" />
+              {opp.title.length > 40 ? `${opp.title.slice(0, 40)}…` : opp.title}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {selectedOpportunity && (
@@ -104,7 +126,14 @@ export function AIWorkspacePage() {
             <Sparkles className="size-5 text-primary" aria-hidden="true" />
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium">{selectedOpportunity.title}</p>
-              <p className="text-xs text-muted-foreground">{selectedOpportunity.agency}</p>
+              <p className="text-xs text-muted-foreground">
+                {selectedOpportunity.agency} · {formatCurrency(selectedOpportunity.value)} · Due{" "}
+                {selectedOpportunity.deadline.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </p>
             </div>
             <Badge variant="success">{selectedOpportunity.fitScore}% fit</Badge>
           </CardContent>
@@ -132,10 +161,10 @@ export function AIWorkspacePage() {
                     <div
                       key={msg.id}
                       className={cn(
-                        'max-w-[85%] rounded-lg px-4 py-3 text-sm',
-                        msg.role === 'user'
-                          ? 'ml-auto bg-primary text-primary-foreground'
-                          : 'bg-muted',
+                        "max-w-[85%] rounded-lg px-4 py-3 text-sm",
+                        msg.role === "user"
+                          ? "ml-auto bg-primary text-primary-foreground"
+                          : "bg-muted",
                       )}
                     >
                       <p className="leading-relaxed">{msg.content}</p>
@@ -158,8 +187,29 @@ export function AIWorkspacePage() {
                   )}
                 </div>
               </ScrollArea>
+              {messages.length <= 1 && (
+                <div className="flex flex-wrap gap-2" aria-label="Suggested questions">
+                  {suggestedPrompts.map((prompt) => (
+                    <Button
+                      key={prompt}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-auto whitespace-normal py-1.5 text-left"
+                      disabled={chatLoading}
+                      onClick={() => void ask(prompt)}
+                    >
+                      {prompt}
+                    </Button>
+                  ))}
+                </div>
+              )}
               <form onSubmit={sendMessage} className="flex gap-2">
+                <Label htmlFor="ai-chat-input" className="sr-only">
+                  Ask a question about the selected opportunity
+                </Label>
                 <Input
+                  id="ai-chat-input"
                   placeholder="Ask about deadlines, requirements, compliance…"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
@@ -187,7 +237,7 @@ export function AIWorkspacePage() {
                 {analysisTypes.map(({ type, label }) => (
                   <Button
                     key={type}
-                    variant={analysisType === type ? 'default' : 'outline'}
+                    variant={analysisType === type ? "default" : "outline"}
                     size="sm"
                     onClick={() => setAnalysisType(type)}
                   >
@@ -209,10 +259,15 @@ export function AIWorkspacePage() {
                 )}
               </Button>
               {analysisResult && (
-                <div className="rounded-lg border border-border bg-muted/50 p-4">
+                <div
+                  className="rounded-lg border border-border bg-muted/50 p-4"
+                  role="region"
+                  aria-live="polite"
+                  aria-label="AI analysis result"
+                >
                   <p className="text-sm leading-relaxed">{analysisResult}</p>
                   <p className="mt-3 text-xs text-muted-foreground">
-                    Confidence: 89% · Sources: RFP Section C, L, M
+                    Confidence: 89% · Sources: RFP Section C, L, M · Review before use
                   </p>
                 </div>
               )}
@@ -221,5 +276,5 @@ export function AIWorkspacePage() {
         </TabsContent>
       </Tabs>
     </PageShell>
-  )
+  );
 }

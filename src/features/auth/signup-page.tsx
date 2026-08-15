@@ -1,36 +1,36 @@
-import { Link, useNavigate } from '@tanstack/react-router'
-import { Bot } from 'lucide-react'
-import { useState } from 'react'
-import { toast } from 'sonner'
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Bot } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function SignupPage() {
-  const navigate = useNavigate()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!name || !email || !password) {
-      toast.error('Please fill in all fields')
-      return
+      toast.error("Please fill in all fields");
+      return;
     }
     if (password.length < 8) {
-      toast.error('Password must be at least 8 characters')
-      return
+      toast.error("Password must be at least 8 characters");
+      return;
     }
-    setLoading(true)
+    setLoading(true);
     setTimeout(() => {
-      toast.success('Account created! Welcome to ProcureAI.')
-      navigate({ to: '/app' })
-    }, 800)
-  }
+      toast.success("Account created! Welcome to ProcureAI.");
+      navigate({ to: "/app" });
+    }, 800);
+  };
 
   return (
     <main
@@ -87,11 +87,11 @@ export function SignupPage() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Creating account…' : 'Create account'}
+              {loading ? "Creating account…" : "Create account"}
             </Button>
           </form>
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link to="/login" className="font-medium text-primary hover:underline">
               Sign in
             </Link>
@@ -99,5 +99,5 @@ export function SignupPage() {
         </CardContent>
       </Card>
     </main>
-  )
+  );
 }

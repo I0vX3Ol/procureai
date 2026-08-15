@@ -1,69 +1,84 @@
-import { Building2, Mail, Shield, UserPlus } from 'lucide-react'
-import { useState } from 'react'
-import { toast } from 'sonner'
+import { Building2, Mail, Shield, UserPlus } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
-import { PageShell } from '@/components/layout/page-shell'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import { getInitials } from '@/lib/utils'
+import { PageShell } from "@/components/layout/page-shell";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { getInitials } from "@/lib/utils";
 
 interface TeamMember {
-  id: string
-  name: string
-  email: string
-  role: 'Admin' | 'Capture Manager' | 'Proposal Writer' | 'Viewer'
+  id: string;
+  name: string;
+  email: string;
+  role: "Admin" | "Capture Manager" | "Proposal Writer" | "Viewer";
 }
 
 const initialTeam: TeamMember[] = [
-  { id: 'mem-1', name: 'Alex Chen', email: 'alex@acme-procurement.com', role: 'Admin' },
-  { id: 'mem-2', name: 'Priya Raman', email: 'priya@acme-procurement.com', role: 'Capture Manager' },
-  { id: 'mem-3', name: 'Jordan Vale', email: 'jordan@acme-procurement.com', role: 'Proposal Writer' },
-  { id: 'mem-4', name: 'Sam Rivera', email: 'sam@acme-procurement.com', role: 'Viewer' },
-]
+  { id: "mem-1", name: "Alex Chen", email: "alex@acme-procurement.com", role: "Admin" },
+  {
+    id: "mem-2",
+    name: "Priya Raman",
+    email: "priya@acme-procurement.com",
+    role: "Capture Manager",
+  },
+  {
+    id: "mem-3",
+    name: "Jordan Vale",
+    email: "jordan@acme-procurement.com",
+    role: "Proposal Writer",
+  },
+  { id: "mem-4", name: "Sam Rivera", email: "sam@acme-procurement.com", role: "Viewer" },
+];
 
-const roleVariant: Record<TeamMember['role'], 'default' | 'secondary' | 'outline'> = {
-  Admin: 'default',
-  'Capture Manager': 'secondary',
-  'Proposal Writer': 'secondary',
-  Viewer: 'outline',
-}
+const roleVariant: Record<TeamMember["role"], "default" | "secondary" | "outline"> = {
+  Admin: "default",
+  "Capture Manager": "secondary",
+  "Proposal Writer": "secondary",
+  Viewer: "outline",
+};
 
 export function OrganizationPage() {
-  const [team, setTeam] = useState(initialTeam)
-  const [inviteEmail, setInviteEmail] = useState('')
+  const [team, setTeam] = useState(initialTeam);
+  const [inviteEmail, setInviteEmail] = useState("");
 
   function handleInvite(event: React.FormEvent) {
-    event.preventDefault()
-    const email = inviteEmail.trim()
+    event.preventDefault();
+    const email = inviteEmail.trim();
     if (!email) {
-      toast.error('Enter an email address to send an invite')
-      return
+      toast.error("Enter an email address to send an invite");
+      return;
     }
-    const name = email.split('@')[0]?.replace(/[._]/g, ' ') ?? email
+    const name = email.split("@")[0]?.replace(/[._]/g, " ") ?? email;
     setTeam((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), name: name.replace(/\b\w/g, (c) => c.toUpperCase()), email, role: 'Viewer' },
-    ])
-    toast.success('Invitation sent', { description: email })
-    setInviteEmail('')
+      {
+        id: crypto.randomUUID(),
+        name: name.replace(/\b\w/g, (c) => c.toUpperCase()),
+        email,
+        role: "Viewer",
+      },
+    ]);
+    toast.success("Invitation sent", { description: email });
+    setInviteEmail("");
   }
 
   function handleRemove(id: string) {
-    const member = team.find((item) => item.id === id)
-    setTeam((prev) => prev.filter((item) => item.id !== id))
-    if (member) toast.success('Member removed', { description: member.name })
+    const member = team.find((item) => item.id === id);
+    setTeam((prev) => prev.filter((item) => item.id !== id));
+    if (member) toast.success("Member removed", { description: member.name });
   }
 
   return (
     <PageShell
       title="Organization"
       description="Manage your company profile, team members, and access roles."
-      breadcrumbs={[{ label: 'Workspace', href: '/app' }, { label: 'Organization' }]}
+      breadcrumbs={[{ label: "Workspace", href: "/app" }, { label: "Organization" }]}
     >
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
@@ -103,7 +118,9 @@ export function OrganizationPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Invite a teammate</CardTitle>
-              <CardDescription>They&apos;ll receive an email invitation to join your workspace.</CardDescription>
+              <CardDescription>
+                They&apos;ll receive an email invitation to join your workspace.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleInvite} className="flex flex-col gap-3 sm:flex-row">
@@ -151,14 +168,16 @@ export function OrganizationPage() {
                       <p className="truncate text-xs text-muted-foreground">{member.email}</p>
                     </div>
                     <Badge variant={roleVariant[member.role]}>
-                      {member.role === 'Admin' && <Shield className="mr-1 size-3" aria-hidden="true" />}
+                      {member.role === "Admin" && (
+                        <Shield className="mr-1 size-3" aria-hidden="true" />
+                      )}
                       {member.role}
                     </Badge>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => handleRemove(member.id)}
-                      disabled={member.role === 'Admin'}
+                      disabled={member.role === "Admin"}
                       aria-label={`Remove ${member.name}`}
                     >
                       Remove
@@ -171,5 +190,5 @@ export function OrganizationPage() {
         </div>
       </div>
     </PageShell>
-  )
+  );
 }

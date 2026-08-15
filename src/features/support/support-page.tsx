@@ -1,40 +1,42 @@
-import { BookOpen, Mail, MessageCircle, Send } from 'lucide-react'
-import { useState } from 'react'
-import { toast } from 'sonner'
+import { BookOpen, Mail, MessageCircle, Send } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
-import { PageShell } from '@/components/layout/page-shell'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { faqItems } from '@/data/mock-data'
+import { PageShell } from "@/components/layout/page-shell";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { faqItems } from "@/data/mock-data";
 
 export function SupportPage() {
-  const [subject, setSubject] = useState('')
-  const [message, setMessage] = useState('')
-  const [submitting, setSubmitting] = useState(false)
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   function handleSubmit(event: React.FormEvent) {
-    event.preventDefault()
+    event.preventDefault();
     if (!subject.trim() || !message.trim()) {
-      toast.error('Please fill in both fields before sending')
-      return
+      toast.error("Please fill in both fields before sending");
+      return;
     }
-    setSubmitting(true)
+    setSubmitting(true);
     setTimeout(() => {
-      toast.success('Message sent', { description: "We'll get back to you within one business day." })
-      setSubject('')
-      setMessage('')
-      setSubmitting(false)
-    }, 500)
+      toast.success("Message sent", {
+        description: "We'll get back to you within one business day.",
+      });
+      setSubject("");
+      setMessage("");
+      setSubmitting(false);
+    }, 500);
   }
 
   return (
     <PageShell
       title="Support"
       description="Find answers, browse documentation, or reach the ProcureAI team directly."
-      breadcrumbs={[{ label: 'Workspace', href: '/app' }, { label: 'Support' }]}
+      breadcrumbs={[{ label: "Workspace", href: "/app" }, { label: "Support" }]}
     >
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-1">
@@ -44,13 +46,19 @@ export function SupportPage() {
                 <BookOpen className="size-5 text-primary" aria-hidden="true" />
               </div>
               <CardTitle className="text-base">Documentation</CardTitle>
-              <CardDescription>Guides for setup, integrations, and the AI workspace.</CardDescription>
+              <CardDescription>
+                Guides for setup, integrations, and the AI workspace.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => toast.info('Documentation', { description: 'Opening the ProcureAI knowledge base…' })}
+                onClick={() =>
+                  toast.info("Documentation", {
+                    description: "Opening the ProcureAI knowledge base…",
+                  })
+                }
               >
                 Browse docs
               </Button>
@@ -69,7 +77,11 @@ export function SupportPage() {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => toast.info('Live chat', { description: 'Connecting you to the next available agent…' })}
+                onClick={() =>
+                  toast.info("Live chat", {
+                    description: "Connecting you to the next available agent…",
+                  })
+                }
               >
                 Start chat
               </Button>
@@ -82,7 +94,9 @@ export function SupportPage() {
                 <Mail className="size-5 text-primary" aria-hidden="true" />
               </div>
               <CardTitle className="text-base">Email us</CardTitle>
-              <CardDescription>support@procureai.com · replies within 1 business day.</CardDescription>
+              <CardDescription>
+                support@procureai.com · replies within 1 business day.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full" asChild>
@@ -96,7 +110,9 @@ export function SupportPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Contact support</CardTitle>
-              <CardDescription>Send us a message and we&apos;ll follow up by email.</CardDescription>
+              <CardDescription>
+                Send us a message and we&apos;ll follow up by email.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -123,7 +139,7 @@ export function SupportPage() {
                 </div>
                 <Button type="submit" disabled={submitting}>
                   <Send className="size-4" aria-hidden="true" />
-                  {submitting ? 'Sending…' : 'Send message'}
+                  {submitting ? "Sending…" : "Send message"}
                 </Button>
               </form>
             </CardContent>
@@ -146,7 +162,9 @@ export function SupportPage() {
                         ▾
                       </span>
                     </summary>
-                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.answer}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                      {item.answer}
+                    </p>
                   </details>
                 ))}
               </div>
@@ -155,5 +173,5 @@ export function SupportPage() {
         </div>
       </div>
     </PageShell>
-  )
+  );
 }
