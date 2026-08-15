@@ -5,6 +5,7 @@ import { CommandPalette } from "@/components/common/command-palette";
 import { AppShellContext } from "@/components/layout/app-shell-context";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
+import { useInertBackground } from "@/hooks/use-inert-background";
 import { WorkspaceProvider } from "@/providers/workspace-provider";
 
 export function AppLayout() {
@@ -12,6 +13,10 @@ export function AppLayout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+
+  // Make the background genuinely inert (not just aria-hidden) while any modal
+  // is open, so no focusable element is left inside an aria-hidden subtree.
+  useInertBackground();
 
   // Navigating from the mobile drawer should dismiss it.
   useEffect(() => {

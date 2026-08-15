@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { documents } from "@/data/workspace-data";
 import { PIPELINE_STAGES, daysUntil } from "@/lib/metrics";
 import { formatCurrency, formatRelativeDate } from "@/lib/utils";
+import { useReturnFocus } from "@/hooks/use-return-focus";
 import { useWorkspace } from "@/providers/workspace-provider";
 import type { Opportunity, PipelineStage } from "@/types";
 
@@ -40,6 +41,9 @@ interface OpportunityDetailProps {
 export function OpportunityDetail({ opportunity, open, onOpenChange }: OpportunityDetailProps) {
   const { moveOpportunity, updateProbability, addNote } = useWorkspace();
   const [note, setNote] = useState("");
+
+  // Return focus to the row control that opened this panel.
+  const onCloseAutoFocus = useReturnFocus();
 
   useEffect(() => {
     setNote("");
@@ -68,7 +72,11 @@ export function OpportunityDetail({ opportunity, open, onOpenChange }: Opportuni
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full p-0 sm:max-w-xl">
+      <SheetContent
+        side="right"
+        className="w-full p-0 sm:max-w-xl"
+        onCloseAutoFocus={onCloseAutoFocus}
+      >
         <ScrollArea className="h-full">
           <div className="p-6">
             <SheetHeader className="text-left">

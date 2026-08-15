@@ -26,11 +26,11 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
 } from "@/components/ui/command";
 import { customers, documents } from "@/data/workspace-data";
 import { formatCurrency } from "@/lib/utils";
 import { useTheme } from "@/providers/theme-provider";
+import { useReturnFocus } from "@/hooks/use-return-focus";
 import { useWorkspace } from "@/providers/workspace-provider";
 
 const pages = [
@@ -64,6 +64,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const navigate = useNavigate();
   const { opportunities } = useWorkspace();
   const { resolvedTheme, setTheme } = useTheme();
+  const onCloseAutoFocus = useReturnFocus();
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -85,6 +86,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     <CommandDialog
       open={open}
       onOpenChange={onOpenChange}
+      onCloseAutoFocus={onCloseAutoFocus}
       title="Search ProcureAI"
       description="Jump to a page, opportunity, customer, or document."
     >
@@ -104,9 +106,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             </CommandItem>
           ))}
         </CommandGroup>
-
-        <CommandSeparator />
-
         <CommandGroup heading="Opportunities">
           {opportunities.map((opportunity) => (
             <CommandItem
@@ -122,9 +121,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             </CommandItem>
           ))}
         </CommandGroup>
-
-        <CommandSeparator />
-
         <CommandGroup heading="Customers">
           {customers.map((customer) => (
             <CommandItem
@@ -137,9 +133,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             </CommandItem>
           ))}
         </CommandGroup>
-
-        <CommandSeparator />
-
         <CommandGroup heading="Documents">
           {documents.map((document) => (
             <CommandItem
@@ -152,9 +145,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             </CommandItem>
           ))}
         </CommandGroup>
-
-        <CommandSeparator />
-
         <CommandGroup heading="Actions">
           <CommandItem
             value="action toggle theme dark light appearance"

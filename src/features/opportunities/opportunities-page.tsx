@@ -17,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OpportunityDetail } from "@/features/opportunities/opportunity-detail";
 import { daysUntil, totalValue, weightedValue } from "@/lib/metrics";
 import { cn, formatCurrency, formatRelativeDate } from "@/lib/utils";
@@ -233,19 +232,28 @@ export function OpportunitiesPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <Tabs
-            value={statusFilter}
-            onValueChange={(value) => setStatusFilter(value as typeof statusFilter)}
-          >
-            <TabsList aria-label="Filter by status">
-              {statusTabs.map((tab) => (
-                <TabsTrigger key={tab.value} value={tab.value}>
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+        {/*
+          A toggle-button group, not Radix Tabs: this filters a list rather than
+          switching tab panels, so there is no tabpanel for a Trigger's
+          aria-controls to point at.
+        */}
+        <div
+          className="flex flex-wrap gap-1 rounded-lg bg-muted p-1"
+          role="group"
+          aria-label="Filter by status"
+        >
+          {statusTabs.map((tab) => (
+            <Button
+              key={tab.value}
+              type="button"
+              size="sm"
+              variant={statusFilter === tab.value ? "default" : "ghost"}
+              aria-pressed={statusFilter === tab.value}
+              onClick={() => setStatusFilter(tab.value)}
+            >
+              {tab.label}
+            </Button>
+          ))}
         </div>
 
         <p className="text-sm text-muted-foreground" role="status">

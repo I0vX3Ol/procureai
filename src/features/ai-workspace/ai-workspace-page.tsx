@@ -155,8 +155,17 @@ export function AIWorkspacePage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-1 flex-col gap-4 overflow-hidden pt-0">
-              <ScrollArea className="flex-1 pr-4">
-                <div className="space-y-4" role="log" aria-live="polite" aria-relevant="additions">
+              <ScrollArea
+                className="flex-1 pr-4"
+                viewportProps={{
+                  tabIndex: 0,
+                  role: "log",
+                  "aria-label": "Conversation",
+                  "aria-live": "polite",
+                  "aria-relevant": "additions",
+                }}
+              >
+                <div className="space-y-4">
                   {messages.map((msg) => (
                     <div
                       key={msg.id}

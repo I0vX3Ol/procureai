@@ -195,19 +195,19 @@ function CustomerDetail({ customer }: { customer: Customer }) {
               <div key={contact.id} className="rounded-lg border border-border p-3">
                 <p className="text-sm font-medium">{contact.name}</p>
                 <p className="text-xs text-muted-foreground">{contact.title}</p>
-                <div className="mt-2 space-y-1 text-xs">
+                <div className="mt-1 flex flex-col text-xs">
                   <a
-                    className="flex items-center gap-1.5 text-primary hover:underline"
+                    className="-mx-1 flex min-h-9 items-center gap-1.5 rounded px-1 text-primary hover:underline sm:min-h-8"
                     href={`mailto:${contact.email}`}
                   >
-                    <Mail className="size-3.5" aria-hidden="true" />
-                    {contact.email}
+                    <Mail className="size-3.5 shrink-0" aria-hidden="true" />
+                    <span className="truncate">{contact.email}</span>
                   </a>
                   <a
-                    className="flex items-center gap-1.5 text-muted-foreground hover:underline"
+                    className="-mx-1 flex min-h-9 items-center gap-1.5 rounded px-1 text-muted-foreground hover:underline sm:min-h-8"
                     href={`tel:${contact.phone.replace(/\s/g, "")}`}
                   >
-                    <Phone className="size-3.5" aria-hidden="true" />
+                    <Phone className="size-3.5 shrink-0" aria-hidden="true" />
                     {contact.phone}
                   </a>
                 </div>

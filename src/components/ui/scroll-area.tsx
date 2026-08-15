@@ -5,14 +5,24 @@ import { cn } from "@/lib/utils";
 
 const ScrollArea = React.forwardRef<
   React.ComponentRef<typeof ScrollAreaPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
->(({ className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> & {
+    /**
+     * Props forwarded to the scroll viewport. Pass `tabIndex={0}` plus a role
+     * and aria-label when the region scrolls but has no focusable children, so
+     * keyboard users can reach it (WCAG 2.1.1).
+     */
+    viewportProps?: React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Viewport>;
+  }
+>(({ className, children, viewportProps, ...props }, ref) => (
   <ScrollAreaPrimitive.Root
     ref={ref}
     className={cn("relative overflow-hidden", className)}
     {...props}
   >
-    <ScrollAreaPrimitive.Viewport className="size-full rounded-[inherit]">
+    <ScrollAreaPrimitive.Viewport
+      {...viewportProps}
+      className={cn("size-full rounded-[inherit]", viewportProps?.className)}
+    >
       {children}
     </ScrollAreaPrimitive.Viewport>
     <ScrollBar />

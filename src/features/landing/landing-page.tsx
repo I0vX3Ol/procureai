@@ -185,7 +185,7 @@ export function LandingPage() {
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
               {enterpriseLogos.map((logo) => (
-                <span key={logo} className="text-sm font-medium text-muted-foreground/70">
+                <span key={logo} className="text-sm font-medium text-muted-foreground">
                   {logo}
                 </span>
               ))}
