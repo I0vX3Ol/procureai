@@ -100,6 +100,30 @@ function RootShell({ children }: { children: ReactNode }) {
           leaves `transition-colors` elements interpolating from the wrong value.
         */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "ProcureAI",
+              url: "https://procure.nexudel.com",
+              description:
+                "ProcureAI helps teams discover, qualify, and win government and enterprise procurement opportunities.",
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "ProcureAI",
+              url: "https://procure.nexudel.com",
+            }),
+          }}
+        />
       </head>
       <body>
         <a
