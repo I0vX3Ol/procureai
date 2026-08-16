@@ -154,6 +154,7 @@ export function LandingPage() {
                   <div className="size-3 rounded-full bg-warning/60" />
                   <div className="size-3 rounded-full bg-success/60" />
                   <span className="ml-2 text-xs text-muted-foreground">ProcureAI Dashboard</span>
+                  <span className="ml-auto text-[11px] text-muted-foreground">Example data</span>
                 </div>
                 <div className="grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-4">
                   {[
