@@ -28,6 +28,8 @@ import { Route as AppProjectsRouteImport } from './routes/app.projects'
 import { Route as AppProposalsRouteImport } from './routes/app.proposals'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppSupportRouteImport } from './routes/app.support'
+import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
+import { Route as LegalTermsRouteImport } from './routes/legal.terms'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -124,6 +126,16 @@ const AppSupportRoute = AppSupportRouteImport.update({
   path: '/support',
   getParentRoute: () => AppRoute,
 } as any)
+const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
+  id: '/legal/privacy',
+  path: '/legal/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalTermsRoute = LegalTermsRouteImport.update({
+  id: '/legal/terms',
+  path: '/legal/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -144,6 +156,8 @@ export interface FileRoutesByFullPath {
   '/app/proposals': typeof AppProposalsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/support': typeof AppSupportRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
@@ -164,6 +178,8 @@ export interface FileRoutesByTo {
   '/app/proposals': typeof AppProposalsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/support': typeof AppSupportRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
@@ -186,6 +202,8 @@ export interface FileRoutesById {
   '/app/proposals': typeof AppProposalsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/support': typeof AppSupportRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
@@ -209,6 +227,8 @@ export interface FileRouteTypes {
     | '/app/proposals'
     | '/app/settings'
     | '/app/support'
+    | '/legal/privacy'
+    | '/legal/terms'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -229,6 +249,8 @@ export interface FileRouteTypes {
     | '/app/proposals'
     | '/app/settings'
     | '/app/support'
+    | '/legal/privacy'
+    | '/legal/terms'
     | '/app'
   id:
     | '__root__'
@@ -250,6 +272,8 @@ export interface FileRouteTypes {
     | '/app/proposals'
     | '/app/settings'
     | '/app/support'
+    | '/legal/privacy'
+    | '/legal/terms'
     | '/app/'
   fileRoutesById: FileRoutesById
 }
@@ -258,6 +282,8 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
+  LegalPrivacyRoute: typeof LegalPrivacyRoute
+  LegalTermsRoute: typeof LegalTermsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -395,6 +421,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSupportRouteImport
       parentRoute: typeof AppRoute
     }
+    '/legal/privacy': {
+      id: '/legal/privacy'
+      path: '/legal/privacy'
+      fullPath: '/legal/privacy'
+      preLoaderRoute: typeof LegalPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/terms': {
+      id: '/legal/terms'
+      path: '/legal/terms'
+      fullPath: '/legal/terms'
+      preLoaderRoute: typeof LegalTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -441,6 +481,8 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
+  LegalPrivacyRoute: LegalPrivacyRoute,
+  LegalTermsRoute: LegalTermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

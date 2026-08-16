@@ -136,7 +136,6 @@ npm install
 npm run build
 npm run lint
 
-
 Then run the development server and inspect the application.
 
 Test:
@@ -629,7 +628,6 @@ Before declaring the project complete:
 
 npm run build
 npm run lint
-
 
 Fix ALL:
 
