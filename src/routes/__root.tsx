@@ -12,6 +12,7 @@ import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { AuthProvider } from "@/lib/auth";
 import { NotFound } from "@/components/common/not-found";
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
@@ -147,11 +148,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-        <Toaster richColors position="top-right" closeButton />
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          <Toaster richColors position="top-right" closeButton />
+        </ThemeProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

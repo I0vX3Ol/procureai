@@ -7,15 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/lib/auth";
 
 export function SignupPage() {
+  const { signUp } = useAuth();
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !password) {
       toast.error("Please fill in all fields");
@@ -26,10 +28,14 @@ export function SignupPage() {
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      toast.success("Account created! Welcome to ProcureAI.");
-      navigate({ to: "/app" });
-    }, 800);
+    const { error } = await signUp({ email, password, fullName: name });
+    setLoading(false);
+    if (error) {
+      toast.error(error);
+      return;
+    }
+    toast.success("Account created! Welcome to ProcureAI.");
+    navigate({ to: "/app" });
   };
 
   return (

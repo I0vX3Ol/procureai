@@ -7,24 +7,41 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/lib/auth";
 
 export function LoginPage() {
+  const { signIn, resetPassword } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast.error("Please enter your email and password");
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      toast.success("Welcome back!");
-      navigate({ to: "/app" });
-    }, 600);
+    const { error } = await signIn({ email, password });
+    setLoading(false);
+    if (error) {
+      toast.error(error);
+      return;
+    }
+    toast.success("Welcome back!");
+    navigate({ to: "/app" });
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error("Enter your email above first");
+      return;
+    }
+    await resetPassword(email);
+    toast.info("Check your email", {
+      description: "If an account exists for that email, a reset link is on its way.",
+    });
   };
 
   return (
@@ -64,12 +81,7 @@ export function LoginPage() {
                 <button
                   type="button"
                   className="text-xs text-primary hover:underline"
-                  onClick={() =>
-                    toast.info("Check your email", {
-                      description:
-                        "If an account exists for that email, a reset link is on its way.",
-                    })
-                  }
+                  onClick={handleForgotPassword}
                 >
                   Forgot password?
                 </button>

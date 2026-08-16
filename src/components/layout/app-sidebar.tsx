@@ -12,6 +12,7 @@ import {
   HelpCircle,
   LayoutDashboard,
   Link2,
+  LogOut,
   Menu,
   Moon,
   PanelLeft,
@@ -21,7 +22,7 @@ import {
   Sun,
   Users,
 } from "lucide-react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 
 import { useAppShell } from "@/components/layout/app-shell-context";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -31,6 +32,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { currentUser } from "@/data/mock-data";
+import { useAuth } from "@/lib/auth";
 import { cn, getInitials } from "@/lib/utils";
 import { useTheme } from "@/providers/theme-provider";
 import { useWorkspace } from "@/providers/workspace-provider";
@@ -73,6 +75,8 @@ interface AppSidebarProps {
 export function AppSidebar({ collapsed, onToggle, className }: AppSidebarProps) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { resolvedTheme, setTheme } = useTheme();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   const { opportunities, unreadCount } = useWorkspace();
 
   const openCount = opportunities.filter(
@@ -221,6 +225,18 @@ export function AppSidebar({ collapsed, onToggle, className }: AppSidebarProps) 
                   ) : (
                     <Moon className="size-4" aria-hidden="true" />
                   )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 shrink-0"
+                  onClick={async () => {
+                    await signOut();
+                    navigate({ to: "/login" });
+                  }}
+                  aria-label="Sign out"
+                >
+                  <LogOut className="size-4" aria-hidden="true" />
                 </Button>
               </>
             )}
