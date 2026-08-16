@@ -126,13 +126,10 @@ export interface AIRecommendation {
 
 export interface DashboardMetrics {
   pipelineValue: number;
-  pipelineChange: number;
   winRate: number;
-  winRateChange: number;
   activeOpportunities: number;
   upcomingDeadlines: number;
   revenueWon: number;
-  revenueChange: number;
 }
 
 export interface ChartDataPoint {

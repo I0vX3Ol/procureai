@@ -12,9 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { documentStore } from "@/lib/services/documents-service";
-import { opportunities } from "@/data/mock-data";
+
 import { cn, formatRelativeDate } from "@/lib/utils";
 import type { AnalysisStatus, DocumentKind, ProcurementDocument } from "@/types/workspace";
+import { useWorkspace } from "@/providers/workspace-provider";
 
 const kindLabels: Record<DocumentKind, string> = {
   rfp: "RFP / RFQ",
@@ -245,6 +246,7 @@ function DocumentRow({
   onAnalyze,
   onRemove,
 }: DocumentRowProps) {
+  const { opportunities } = useWorkspace();
   const opportunity = opportunities.find((item) => item.id === document.opportunityId);
 
   return (
@@ -315,11 +317,13 @@ function DocumentDetail({
   analyzing: boolean;
   onAnalyze: () => void;
 }) {
+  const { opportunities } = useWorkspace();
+
   if (!document) {
     return (
       <Card>
         <CardContent className="p-6 text-sm text-muted-foreground">
-          Select a document to see its metadata and AI analysis.
+          Select a document to see its metadata.
         </CardContent>
       </Card>
     );

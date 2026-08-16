@@ -1,13 +1,13 @@
-import { aiService } from "@/lib/ai/service";
-import { documents as seedDocuments } from "@/data/workspace-data";
+import { supabase } from "@/lib/supabase";
+import { fetchDocuments } from "@/lib/remote-data";
 import type { ProcurementDocument } from "@/types/workspace";
 
 /**
- * Storage abstraction for procurement documents.
+ * Procurement document metadata, stored per organisation in Supabase.
  *
- * The in-memory implementation below keeps the UI fully interactive without a
- * backend. Swap `InMemoryDocumentStore` for an implementation that talks to a
- * real object store + server API — no UI changes required.
+ * Binary upload to object storage is not wired up yet, so `upload` records the
+ * metadata row and the UI says as much rather than pretending a file landed
+ * somewhere. Automated analysis is likewise not available.
  */
 export interface DocumentStore {
   list(): Promise<ProcurementDocument[]>;
@@ -25,46 +25,43 @@ function inferKind(name: string): ProcurementDocument["kind"] {
   return "attachment";
 }
 
-class InMemoryDocumentStore implements DocumentStore {
-  private items: ProcurementDocument[] = [...seedDocuments];
-
+class SupabaseDocumentStore implements DocumentStore {
   async list(): Promise<ProcurementDocument[]> {
-    await delay(250);
-    return [...this.items].sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime());
+    return (await fetchDocuments()) as unknown as ProcurementDocument[];
   }
 
   async upload(file: { name: string; sizeKb: number }): Promise<ProcurementDocument> {
-    await delay(600);
-    const doc: ProcurementDocument = {
-      id: crypto.randomUUID(),
-      name: file.name,
+    const { data, error } = await supabase
+      .from("procureai_documents")
+      .insert({
+        name: file.name,
+        kind: inferKind(file.name),
+        size_bytes: Math.max(1, Math.round(file.sizeKb)) * 1024,
+      })
+      .select("*")
+      .single();
+    if (error) throw error;
+    const row = data as Record<string, unknown>;
+    return {
+      id: String(row["id"]),
+      name: String(row["name"]),
       kind: inferKind(file.name),
       sizeKb: Math.max(1, Math.round(file.sizeKb)),
-      uploadedAt: new Date(),
-      uploadedBy: "Alex Chen",
+      uploadedAt: new Date(String(row["created_at"])),
+      uploadedBy: "",
       status: "pending",
-      pages: Math.max(1, Math.round(file.sizeKb / 60)),
+      pages: 0,
       tags: [],
     };
-    this.items = [doc, ...this.items];
-    return doc;
   }
 
   async remove(id: string): Promise<void> {
-    await delay(200);
-    this.items = this.items.filter((item) => item.id !== id);
+    const { error } = await supabase.from("procureai_documents").delete().eq("id", id);
+    if (error) throw error;
   }
 
-  async analyze(id: string): Promise<ProcurementDocument> {
-    const target = this.items.find((item) => item.id === id);
-    if (!target) throw new Error("Document not found");
-
-    target.status = "analyzing";
-    const result = await aiService.analyzeDocument({ documentId: id, type: "summary" });
-    target.status = "complete";
-    target.summary = result.content;
-    this.items = this.items.map((item) => (item.id === id ? { ...target } : item));
-    return { ...target };
+  async analyze(): Promise<ProcurementDocument> {
+    throw new Error("Automated document analysis is not available yet.");
   }
 }
 
@@ -72,4 +69,4 @@ function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export const documentStore: DocumentStore = new InMemoryDocumentStore();
+export const documentStore: DocumentStore = new SupabaseDocumentStore();

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   BarChart3,
   Bell,
@@ -31,7 +32,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { currentUser } from "@/data/mock-data";
+import { fetchProfile } from "@/lib/remote-data";
 import { useAuth } from "@/lib/auth";
 import { cn, getInitials } from "@/lib/utils";
 import { useTheme } from "@/providers/theme-provider";
@@ -78,6 +79,17 @@ export function AppSidebar({ collapsed, onToggle, className }: AppSidebarProps) 
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const { opportunities, unreadCount } = useWorkspace();
+  const [profile, setProfile] = useState<Awaited<ReturnType<typeof fetchProfile>>>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchProfile().then((row) => {
+      if (!cancelled) setProfile(row);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const openCount = opportunities.filter(
     (item) => item.status !== "won" && item.status !== "lost",
@@ -205,13 +217,13 @@ export function AppSidebar({ collapsed, onToggle, className }: AppSidebarProps) 
             className={cn("flex items-center gap-2 rounded-md p-2", collapsed && "justify-center")}
           >
             <Avatar className="size-8">
-              <AvatarFallback>{getInitials(currentUser.name)}</AvatarFallback>
+              <AvatarFallback>{getInitials(profile?.name ?? "")}</AvatarFallback>
             </Avatar>
             {!collapsed && (
               <>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{currentUser.name}</p>
-                  <p className="truncate text-xs text-sidebar-foreground">{currentUser.email}</p>
+                  <p className="truncate text-sm font-medium">{profile?.name ?? "Your account"}</p>
+                  <p className="truncate text-xs text-sidebar-foreground">{profile?.email ?? ""}</p>
                 </div>
                 <Button
                   variant="ghost"

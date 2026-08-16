@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   Bar,
   BarChart,
@@ -26,15 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import {
-  cycleTimeData,
-  forecastData,
-  opportunityTrendData,
-  pipelineChartData,
-  proposalFunnelData,
-  winRateChartData,
-} from "@/data/mock-data";
-import { customers } from "@/data/workspace-data";
+import { EMPTY_PROCURE_DASHBOARD, fetchProcureDashboard } from "@/lib/remote-data";
+import { fetchCustomers } from "@/lib/remote-data";
 import { dashboardMetrics, valueByType, weightedValue, openOpportunities } from "@/lib/metrics";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { useWorkspace } from "@/providers/workspace-provider";
@@ -68,11 +61,47 @@ export function AnalyticsPage() {
   const forecast = useMemo(() => weightedValue(open), [open]);
   const mix = useMemo(() => valueByType(opportunities), [opportunities]);
 
+  const [customers, setCustomers] = useState<Awaited<ReturnType<typeof fetchCustomers>>>([]);
+  const [dashboard, setDashboard] = useState(EMPTY_PROCURE_DASHBOARD);
+
+  const pipelineChartData = dashboard.stages.map((s2) => ({ label: s2.label, value: s2.amount }));
+  const opportunityTrendData = dashboard.months.map((m) => ({
+    label: m.label,
+    value: m.discovered,
+  }));
+  const winRateChartData = dashboard.months.map((m) => ({
+    label: m.label,
+    value: m.won + m.lost > 0 ? Math.round((m.won / (m.won + m.lost)) * 100) : 0,
+  }));
+  const forecastData = dashboard.months.map((m) => ({
+    label: m.label,
+    committed: m.wonValue,
+    weighted: Math.round(m.wonValue * 0.85),
+  }));
+  const proposalFunnelData = dashboard.funnel;
+  const cycleTimeData = dashboard.months.map((m) => ({
+    label: m.label,
+    value: dashboard.avgCycleDays ?? 0,
+  }));
+
   const months = range === "3m" ? 3 : range === "6m" ? 6 : pipelineChartData.length;
   const pipelineSeries = pipelineChartData.slice(-months);
 
   const mixTotal = mix.reduce((sum, item) => sum + item.value, 0);
+  useEffect(() => {
+    let cancelled = false;
+    void fetchCustomers().then((rows) => {
+      if (!cancelled) setCustomers(rows);
+    });
+    void fetchProcureDashboard().then((d) => {
+      if (!cancelled) setDashboard(d);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const activeCustomers = customers.filter((customer) => customer.status === "active").length;
+
   const averageDeal = open.length > 0 ? metrics.pipelineValue / open.length : 0;
 
   const summaryCards = [
@@ -187,7 +216,7 @@ export function AnalyticsPage() {
 
           <ChartCard
             title="Forecast vs quota"
-            description="Committed and weighted forecast against the quarterly target"
+            description="Value won per month, with a weighted view"
             rows={forecastData.map((point) => point.label)}
             series={[
               {
@@ -197,10 +226,6 @@ export function AnalyticsPage() {
               {
                 label: "Weighted",
                 values: forecastData.map((point) => formatCurrency(point.weighted)),
-              },
-              {
-                label: "Target",
-                values: forecastData.map((point) => formatCurrency(point.target)),
               },
             ]}
           >
@@ -296,10 +321,6 @@ export function AnalyticsPage() {
               {
                 label: "Your win rate",
                 values: winRateChartData.map((point) => `${point.value}%`),
-              },
-              {
-                label: "Benchmark",
-                values: winRateChartData.map((point) => `${point.secondary ?? 0}%`),
               },
             ]}
           >

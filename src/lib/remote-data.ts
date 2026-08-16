@@ -1,6 +1,4 @@
 import { supabase } from "@/lib/supabase";
-import { opportunities as sampleOpportunities, projects as sampleProjects } from "@/data/mock-data";
-import { customers as sampleCustomers, proposals as sampleProposals } from "@/data/workspace-data";
 import type {
   Opportunity,
   OpportunityNote,
@@ -91,7 +89,7 @@ export async function fetchOpportunities(): Promise<Opportunity[]> {
     .order("created_at", { ascending: false });
   if (error || !data || data.length === 0) {
     if (error) console.warn("Falling back to sample opportunities:", error.message);
-    return sampleOpportunities;
+    return [];
   }
   const records = (data as OpportunityRow[]).map(toOpportunity);
   opportunityCache = { records, fetchedAt: Date.now() };
@@ -215,7 +213,7 @@ export async function fetchCustomers(): Promise<Customer[]> {
     .order("created_at", { ascending: false });
   if (error || !data || data.length === 0) {
     if (error) console.warn("Falling back to sample customers:", error.message);
-    return sampleCustomers;
+    return [];
   }
   return (data as CustomerRow[]).map(toCustomer);
 }
@@ -267,7 +265,7 @@ export async function fetchProjects(): Promise<Project[]> {
     .order("created_at", { ascending: false });
   if (error || !data || data.length === 0) {
     if (error) console.warn("Falling back to sample projects:", error.message);
-    return sampleProjects;
+    return [];
   }
   return (data as ProjectRow[]).map(toProject);
 }
@@ -301,7 +299,7 @@ export async function fetchProposals(): Promise<Proposal[]> {
     .order("created_at", { ascending: false });
   if (error || !data || data.length === 0) {
     if (error) console.warn("Falling back to sample proposals:", error.message);
-    return sampleProposals;
+    return [];
   }
   return (data as ProposalRow[]).map(toProposal);
 }
@@ -309,4 +307,227 @@ export async function fetchProposals(): Promise<Proposal[]> {
 export async function persistProposalSections(id: string, sections: ProposalSection[]) {
   const { error } = await supabase.from("procureai_proposals").update({ sections }).eq("id", id);
   if (error) console.warn("Couldn't persist proposal sections:", error.message);
+}
+
+/* ---------------------------------------------------------------------------
+ * Workspace tables: notifications, documents, calendar, integrations, activity,
+ * API keys, profile and organisation. All org-scoped by row-level security.
+ * ------------------------------------------------------------------------- */
+
+type WsRow = Record<string, unknown>;
+
+const wsStr = (v: unknown, fallback = "") => (typeof v === "string" && v ? v : fallback);
+const wsNum = (v: unknown, fallback = 0) => (typeof v === "number" ? v : fallback);
+
+async function selectRows(view: string, orderBy = "created_at", ascending = false) {
+  const { data, error } = await supabase.from(view).select("*").order(orderBy, { ascending });
+  if (error) {
+    console.error(`Failed to load ${view}:`, error.message);
+    return [] as WsRow[];
+  }
+  return (data ?? []) as unknown as WsRow[];
+}
+
+export type ProcureDashboard = {
+  months: {
+    label: string;
+    monthStart: string;
+    discovered: number;
+    won: number;
+    lost: number;
+    wonValue: number;
+  }[];
+  stages: { label: string; value: number; amount: number }[];
+  funnel: { label: string; value: number }[];
+  avgCycleDays: number | null;
+  kpis: {
+    openCount: number;
+    openValue: number;
+    weightedValue: number;
+    wonValue: number;
+    winRate: number | null;
+    dueSoon: number;
+    proposals: number;
+    openTasks: number;
+    customers: number;
+    projects: number;
+  };
+};
+
+export const EMPTY_PROCURE_DASHBOARD: ProcureDashboard = {
+  months: [],
+  stages: [],
+  funnel: [],
+  avgCycleDays: null,
+  kpis: {
+    openCount: 0,
+    openValue: 0,
+    weightedValue: 0,
+    wonValue: 0,
+    winRate: null,
+    dueSoon: 0,
+    proposals: 0,
+    openTasks: 0,
+    customers: 0,
+    projects: 0,
+  },
+};
+
+export async function fetchProcureDashboard(): Promise<ProcureDashboard> {
+  const { data, error } = await supabase.rpc("procureai_dashboard");
+  if (error || !data || (data as WsRow)["error"]) {
+    if (error) console.error("Failed to load dashboard metrics:", error.message);
+    return EMPTY_PROCURE_DASHBOARD;
+  }
+  return data as unknown as ProcureDashboard;
+}
+
+export async function fetchNotifications() {
+  return (await selectRows("procureai_notifications")).map((r) => ({
+    id: String(r["id"]),
+    title: wsStr(r["title"]),
+    message: wsStr(r["body"]),
+    type: (wsStr(r["kind"], "info") as "info" | "success" | "warning" | "deadline") ?? "info",
+    read: r["read_at"] != null,
+    createdAt: new Date(String(r["created_at"])),
+  }));
+}
+
+export async function persistNotificationRead(id: string, read: boolean) {
+  await supabase
+    .from("procureai_notifications")
+    .update({ read_at: read ? new Date().toISOString() : null })
+    .eq("id", id);
+}
+
+export async function persistAllNotificationsRead() {
+  await supabase
+    .from("procureai_notifications")
+    .update({ read_at: new Date().toISOString() })
+    .is("read_at", null);
+}
+
+export async function fetchDocuments() {
+  return (await selectRows("procureai_documents")).map((r) => ({
+    id: String(r["id"]),
+    name: wsStr(r["name"]),
+    kind: wsStr(r["kind"], "other"),
+    sizeKb: Math.round(wsNum(r["size_bytes"]) / 1024),
+    uploadedAt: new Date(String(r["created_at"])),
+    uploadedBy: "",
+    opportunityId: (r["opportunity_id"] as string | null) ?? undefined,
+    status: "ready",
+    pages: 0,
+    tags: [] as string[],
+  }));
+}
+
+export async function fetchCalendarEvents() {
+  return (await selectRows("procureai_calendar_events", "starts_at", true)).map((r) => ({
+    id: String(r["id"]),
+    title: wsStr(r["title"]),
+    date: new Date(String(r["starts_at"])),
+    type: wsStr(r["kind"], "milestone"),
+    detail: wsStr(r["notes"]),
+  }));
+}
+
+export async function fetchIntegrations() {
+  await supabase.rpc("procureai_sync_integration_catalogue");
+  return (await selectRows("procureai_integrations", "provider", true)).map((r) => ({
+    id: String(r["id"]),
+    name: wsStr(r["provider"]),
+    category: wsStr(r["category"]),
+    description: wsStr(r["description"]),
+    status: wsStr(r["status"], "available"),
+  }));
+}
+
+export async function setIntegrationStatus(id: string, status: string) {
+  const { error } = await supabase
+    .from("procureai_integrations")
+    .update({ status, connected_at: status === "connected" ? new Date().toISOString() : null })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+export async function fetchActivity() {
+  return (await selectRows("procureai_activity")).slice(0, 12).map((r) => ({
+    id: String(r["id"]),
+    actor: wsStr(r["actor"]),
+    action: wsStr(r["action"]),
+    kind: wsStr(r["kind"], "team"),
+    createdAt: new Date(String(r["created_at"])),
+  }));
+}
+
+export async function fetchTasks() {
+  return (await selectRows("procureai_tasks", "due_date", true)).map((r) => ({
+    id: String(r["id"]),
+    title: wsStr(r["title"]),
+    status: wsStr(r["status"], "todo"),
+    priority: wsStr(r["priority"], "medium"),
+    assignee: wsStr(r["assignee"]),
+    dueDate: r["due_date"] ? new Date(String(r["due_date"])) : null,
+    completed: r["completed_at"] != null,
+  }));
+}
+
+export async function fetchProfile() {
+  const { data, error } = await supabase.from("procureai_profiles").select("*").maybeSingle();
+  if (error || !data) return null;
+  const r = data as WsRow;
+  return {
+    id: String(r["id"]),
+    name: wsStr(r["full_name"], wsStr(r["email"])),
+    email: wsStr(r["email"]),
+    role: wsStr(r["role"], "member"),
+    title: wsStr(r["title"]),
+  };
+}
+
+export async function updateProfile(patch: Record<string, unknown>) {
+  const { data: me } = await supabase.auth.getUser();
+  if (!me.user) return;
+  const { error } = await supabase.from("procureai_profiles").update(patch).eq("id", me.user.id);
+  if (error) throw error;
+}
+
+export async function fetchOrganization() {
+  const { data, error } = await supabase.from("procureai_organizations").select("*").maybeSingle();
+  if (error || !data) return null;
+  const r = data as WsRow;
+  return {
+    id: String(r["id"]),
+    name: wsStr(r["name"]),
+    plan: wsStr(r["plan"], "Starter"),
+    seats: wsNum(r["seats"], 5),
+  };
+}
+
+export async function fetchApiKeys() {
+  return (await selectRows("procureai_api_keys"))
+    .filter((r) => r["revoked_at"] == null)
+    .map((r) => ({
+      id: String(r["id"]),
+      name: wsStr(r["name"]),
+      prefix: wsStr(r["prefix"]),
+      createdAt: new Date(String(r["created_at"])),
+      lastUsedAt: r["last_used_at"] ? new Date(String(r["last_used_at"])) : null,
+    }));
+}
+
+/** Returns the plaintext secret exactly once — only its hash is stored. */
+export async function createApiKey(name: string, env: "live" | "test" = "live") {
+  const { data, error } = await supabase.rpc("procureai_create_api_key", {
+    p_name: name,
+    p_env: env,
+  });
+  if (error) throw error;
+  return data as { id: string; name: string; prefix: string; secret: string };
+}
+
+export async function revokeApiKey(id: string) {
+  const { error } = await supabase.rpc("procureai_revoke_api_key", { p_id: id });
+  if (error) throw error;
 }

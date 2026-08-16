@@ -17,7 +17,7 @@ import {
   Sun,
   Users,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import {
   CommandDialog,
@@ -27,7 +27,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { customers, documents } from "@/data/workspace-data";
+import { fetchCustomers, fetchDocuments } from "@/lib/remote-data";
 import { formatCurrency } from "@/lib/utils";
 import { useTheme } from "@/providers/theme-provider";
 import { useReturnFocus } from "@/hooks/use-return-focus";
@@ -63,6 +63,21 @@ interface CommandPaletteProps {
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const navigate = useNavigate();
   const { opportunities } = useWorkspace();
+  const [customers, setCustomers] = useState<Awaited<ReturnType<typeof fetchCustomers>>>([]);
+  const [documents, setDocuments] = useState<Awaited<ReturnType<typeof fetchDocuments>>>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchCustomers().then((rows) => {
+      if (!cancelled) setCustomers(rows);
+    });
+    void fetchDocuments().then((rows) => {
+      if (!cancelled) setDocuments(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const { resolvedTheme, setTheme } = useTheme();
   const onCloseAutoFocus = useReturnFocus();
 

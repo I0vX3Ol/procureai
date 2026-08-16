@@ -10,7 +10,7 @@ import {
   Target,
   TrendingUp,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -31,14 +31,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import {
-  aiActivities,
-  aiRecommendations,
-  metricTrends,
-  opportunityTrendData,
-  pipelineChartData,
-  projects,
-  tasks,
-} from "@/data/mock-data";
+  fetchActivity,
+  fetchProcureDashboard,
+  fetchProjects,
+  fetchTasks,
+  EMPTY_PROCURE_DASHBOARD,
+} from "@/lib/remote-data";
 import {
   dashboardMetrics,
   daysUntil,
@@ -122,6 +120,30 @@ export function DashboardPage() {
   const open = useMemo(() => openOpportunities(opportunities), [opportunities]);
   const forecast = useMemo(() => weightedValue(open), [open]);
   const upcoming = useMemo(() => deadlinesWithin(45, opportunities).slice(0, 5), [opportunities]);
+  const [dashboard, setDashboard] = useState(EMPTY_PROCURE_DASHBOARD);
+  const [projects, setProjects] = useState<Awaited<ReturnType<typeof fetchProjects>>>([]);
+  const [tasks, setTasks] = useState<Awaited<ReturnType<typeof fetchTasks>>>([]);
+  const [aiActivities, setAiActivities] = useState<Awaited<ReturnType<typeof fetchActivity>>>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchProcureDashboard().then((d) => !cancelled && setDashboard(d));
+    void fetchProjects().then((r) => !cancelled && setProjects(r));
+    void fetchTasks().then((r) => !cancelled && setTasks(r));
+    void fetchActivity().then((r) => !cancelled && setAiActivities(r));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const pipelineChartData = dashboard.stages.map((stage) => ({
+    label: stage.label,
+    value: stage.amount,
+  }));
+  const opportunityTrendData = dashboard.months.map((m) => ({
+    label: m.label,
+    value: m.discovered,
+  }));
   const activeProjects = projects.filter((project) => project.status === "active");
   const openTasks = tasks.filter((task) => !task.completed);
 
@@ -148,7 +170,6 @@ export function DashboardPage() {
           <MetricCard
             label="Open pipeline"
             value={formatCurrency(metrics.pipelineValue)}
-            change={metricTrends.pipelineChange}
             changeLabel="vs last month"
           />
           <MetricCard
@@ -159,13 +180,11 @@ export function DashboardPage() {
           <MetricCard
             label="Win rate"
             value={formatPercent(metrics.winRate, 1)}
-            change={metricTrends.winRateChange}
             changeLabel="vs last quarter"
           />
           <MetricCard
             label="Revenue won"
             value={formatCurrency(metrics.revenueWon)}
-            change={metricTrends.revenueChange}
             changeLabel="year to date"
           />
         </div>
@@ -282,28 +301,9 @@ export function DashboardPage() {
           </CardHeader>
           <CardContent>
             <ul className="grid gap-4 md:grid-cols-3">
-              {aiRecommendations.map((recommendation) => (
-                <li
-                  key={recommendation.id}
-                  className="flex flex-col rounded-lg border border-border p-4"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-sm font-medium leading-snug">{recommendation.title}</h3>
-                    <Badge variant={impactVariants[recommendation.impact]}>
-                      {recommendation.impact}
-                    </Badge>
-                  </div>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
-                    {recommendation.rationale}
-                  </p>
-                  <Button variant="outline" size="sm" className="mt-4 self-start" asChild>
-                    <Link to={recommendation.actionHref}>
-                      {recommendation.actionLabel}
-                      <span className="sr-only"> for {recommendation.title}</span>
-                    </Link>
-                  </Button>
-                </li>
-              ))}
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                Automated recommendations are not switched on yet.
+              </p>
             </ul>
           </CardContent>
         </Card>
@@ -381,7 +381,8 @@ export function DashboardPage() {
                         </span>
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {task.assignee} · {formatRelativeDate(task.dueDate)}
+                        {task.assignee} ·{" "}
+                        {task.dueDate ? formatRelativeDate(task.dueDate) : "No due date"}
                       </p>
                     </div>
                     <Badge
@@ -454,15 +455,20 @@ export function DashboardPage() {
             </CardHeader>
             <CardContent>
               <ol className="space-y-4">
+                {aiActivities.length === 0 ? (
+                  <p className="py-6 text-center text-sm text-muted-foreground">
+                    No activity recorded yet.
+                  </p>
+                ) : null}
                 {aiActivities.map((activity, index) => (
                   <li key={activity.id}>
                     <p className="text-sm font-medium">{activity.action}</p>
-                    <p className="text-xs text-muted-foreground">{activity.target}</p>
+                    <p className="text-xs text-muted-foreground">{activity.actor}</p>
                     <time
                       className="mt-1 block text-[11px] text-muted-foreground"
-                      dateTime={activity.timestamp.toISOString()}
+                      dateTime={activity.createdAt.toISOString()}
                     >
-                      {activity.timestamp.toLocaleString([], {
+                      {activity.createdAt.toLocaleString([], {
                         month: "short",
                         day: "numeric",
                         hour: "2-digit",

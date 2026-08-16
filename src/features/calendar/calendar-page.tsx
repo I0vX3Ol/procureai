@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Briefcase, CalendarClock, CheckSquare, FileText, Flag } from "lucide-react";
 
 import { PageShell } from "@/components/layout/page-shell";
@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/common/empty-state";
-import { calendarEvents } from "@/data/workspace-data";
+import { fetchCalendarEvents } from "@/lib/remote-data";
 import { formatRelativeDate } from "@/lib/utils";
 import type { CalendarEvent, CalendarEventType } from "@/types/workspace";
 
@@ -70,7 +70,18 @@ function EventRow({ event }: { event: CalendarEvent }) {
 export function CalendarPage() {
   const [selected, setSelected] = useState<Date | undefined>(new Date("2026-08-13"));
 
-  const eventDays = useMemo(() => calendarEvents.map((event) => event.date), []);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    void fetchCalendarEvents().then((rows) => {
+      if (!cancelled) setCalendarEvents(rows as unknown as CalendarEvent[]);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const eventDays = useMemo(() => calendarEvents.map((event) => event.date), [calendarEvents]);
 
   const selectedEvents = useMemo(() => {
     if (!selected) return [];

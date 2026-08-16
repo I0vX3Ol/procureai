@@ -24,7 +24,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
-import { documents } from "@/data/workspace-data";
+import { fetchDocuments } from "@/lib/remote-data";
 import { PIPELINE_STAGES, daysUntil } from "@/lib/metrics";
 import { formatCurrency, formatRelativeDate } from "@/lib/utils";
 import { useReturnFocus } from "@/hooks/use-return-focus";
@@ -48,6 +48,15 @@ export function OpportunityDetail({ opportunity, open, onOpenChange }: Opportuni
   useEffect(() => {
     setNote("");
   }, [opportunity?.id]);
+
+  const [documents, setDocuments] = useState<Awaited<ReturnType<typeof fetchDocuments>>>([]);
+  useEffect(() => {
+    let cancelled = false;
+    void fetchDocuments().then((rows) => !cancelled && setDocuments(rows));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (!opportunity) return null;
 

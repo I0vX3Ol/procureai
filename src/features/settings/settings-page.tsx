@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ExternalLink, KeyRound, Save, ShieldCheck } from "lucide-react";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
 
 import { PageShell } from "@/components/layout/page-shell";
@@ -21,7 +21,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { currentUser } from "@/data/mock-data";
+import { fetchProfile, updateProfile } from "@/lib/remote-data";
 import { useTheme } from "@/providers/theme-provider";
 
 interface NotificationPrefs {
@@ -39,8 +39,20 @@ const accentOptions = [
 
 export function SettingsPage() {
   const { theme, setTheme } = useTheme();
-  const [name, setName] = useState(currentUser.name);
-  const [email, setEmail] = useState(currentUser.email);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchProfile().then((profile) => {
+      if (cancelled || !profile) return;
+      setName(profile.name);
+      setEmail(profile.email);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [title, setTitle] = useState("Director of Capture");
   const [orgName, setOrgName] = useState("Acme Procurement Group");
   const [orgDomain, setOrgDomain] = useState("acme-procurement.com");

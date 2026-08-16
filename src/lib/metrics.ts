@@ -1,4 +1,3 @@
-import { metricTrends, opportunities, projects } from "@/data/mock-data";
 import type { DashboardMetrics, Opportunity, PipelineStage } from "@/types";
 
 /**
@@ -16,10 +15,10 @@ export const OPEN_STATUSES: Opportunity["status"][] = [
   "submitted",
 ];
 
-/** The reference "today" for this dataset. */
-export const TODAY = new Date("2026-08-13T09:00:00");
+/** Reference point for every relative date calculation. */
+export const TODAY = new Date();
 
-export function openOpportunities(items: Opportunity[] = opportunities): Opportunity[] {
+export function openOpportunities(items: Opportunity[]): Opportunity[] {
   return items.filter((item) => OPEN_STATUSES.includes(item.status));
 }
 
@@ -36,7 +35,7 @@ export function daysUntil(date: Date, from: Date = TODAY): number {
   return Math.round((date.getTime() - from.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-export function deadlinesWithin(days: number, items: Opportunity[] = opportunities): Opportunity[] {
+export function deadlinesWithin(days: number, items: Opportunity[]): Opportunity[] {
   return openOpportunities(items)
     .filter((item) => {
       const delta = daysUntil(item.deadline);
@@ -45,28 +44,25 @@ export function deadlinesWithin(days: number, items: Opportunity[] = opportuniti
     .sort((a, b) => a.deadline.getTime() - b.deadline.getTime());
 }
 
-export function winRate(items: Opportunity[] = opportunities): number {
+export function winRate(items: Opportunity[]): number {
   const decided = items.filter((item) => item.status === "won" || item.status === "lost");
   if (decided.length === 0) return 0;
   const won = decided.filter((item) => item.status === "won").length;
   return (won / decided.length) * 100;
 }
 
-export function revenueWon(items: Opportunity[] = opportunities): number {
+export function revenueWon(items: Opportunity[]): number {
   return totalValue(items.filter((item) => item.status === "won"));
 }
 
-export function dashboardMetrics(items: Opportunity[] = opportunities): DashboardMetrics {
+export function dashboardMetrics(items: Opportunity[]): DashboardMetrics {
   const open = openOpportunities(items);
   return {
     pipelineValue: totalValue(open),
-    pipelineChange: metricTrends.pipelineChange,
     winRate: winRate(items),
-    winRateChange: metricTrends.winRateChange,
     activeOpportunities: open.length,
     upcomingDeadlines: deadlinesWithin(30, items).length,
     revenueWon: revenueWon(items),
-    revenueChange: metricTrends.revenueChange,
   };
 }
 
@@ -87,7 +83,7 @@ export const PIPELINE_STAGES: { id: PipelineStage; label: string }[] = [
   { id: "awarded", label: "Awarded" },
 ];
 
-export function summariseStages(items: Opportunity[] = opportunities): StageSummary[] {
+export function summariseStages(items: Opportunity[]): StageSummary[] {
   return PIPELINE_STAGES.map(({ id, label }) => {
     const stageItems = items.filter((item) => item.stage === id);
     return {
@@ -101,7 +97,7 @@ export function summariseStages(items: Opportunity[] = opportunities): StageSumm
 }
 
 /** Pipeline value grouped by customer sector, for the analytics mix chart. */
-export function valueByType(items: Opportunity[] = opportunities) {
+export function valueByType(items: Opportunity[]) {
   const labels: Record<Opportunity["type"], string> = {
     government: "Federal",
     rfp: "State & Local",
@@ -118,6 +114,6 @@ export function valueByType(items: Opportunity[] = opportunities) {
   return [...totals.entries()].map(([label, value]) => ({ label, value }));
 }
 
-export function activeProjects() {
+export function activeProjects(projects: { status: string }[]) {
   return projects.filter((project) => project.status === "active");
 }

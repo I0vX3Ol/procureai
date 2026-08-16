@@ -1,12 +1,12 @@
-import { integrations as seedIntegrations } from "@/data/workspace-data";
+import { fetchIntegrations, setIntegrationStatus } from "@/lib/remote-data";
 import type { Integration } from "@/types/workspace";
 
 /**
- * Integration registry abstraction.
+ * Integration registry, persisted per organisation in Supabase.
  *
- * Connections here are local workspace state only — no external credentials are
- * stored or transmitted from the browser. A real implementation performs the
- * OAuth handshake server-side and returns the persisted connection record.
+ * No OAuth handshake exists yet, so "connecting" records that this workspace
+ * wants the connector — it does not claim a live sync. The UI is worded to
+ * match.
  */
 export interface IntegrationService {
   list(): Promise<Integration[]>;
@@ -14,33 +14,26 @@ export interface IntegrationService {
   disconnect(id: string): Promise<Integration>;
 }
 
-class LocalIntegrationService implements IntegrationService {
-  private items: Integration[] = seedIntegrations.map((item) => ({ ...item }));
-
+class SupabaseIntegrationService implements IntegrationService {
   async list(): Promise<Integration[]> {
-    await delay(200);
-    return this.items.map((item) => ({ ...item }));
+    return (await fetchIntegrations()) as unknown as Integration[];
   }
 
   async connect(id: string): Promise<Integration> {
-    await delay(500);
-    return this.update(id, { status: "connected", lastSync: new Date() });
+    await setIntegrationStatus(id, "requested");
+    return this.find(id);
   }
 
   async disconnect(id: string): Promise<Integration> {
-    await delay(300);
-    const next = this.update(id, { status: "available" });
-    delete next.lastSync;
-    this.items = this.items.map((item) => (item.id === id ? next : item));
-    return { ...next };
+    await setIntegrationStatus(id, "available");
+    return this.find(id);
   }
 
-  private update(id: string, patch: Partial<Integration>): Integration {
-    const target = this.items.find((item) => item.id === id);
-    if (!target) throw new Error("Integration not found");
-    const next = { ...target, ...patch };
-    this.items = this.items.map((item) => (item.id === id ? next : item));
-    return { ...next };
+  private async find(id: string): Promise<Integration> {
+    const all = await this.list();
+    const found = all.find((item) => item.id === id);
+    if (!found) throw new Error("Integration not found");
+    return found;
   }
 }
 
@@ -48,4 +41,4 @@ function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export const integrationService: IntegrationService = new LocalIntegrationService();
+export const integrationService: IntegrationService = new SupabaseIntegrationService();

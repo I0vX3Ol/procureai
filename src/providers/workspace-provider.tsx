@@ -8,9 +8,12 @@ import {
   type ReactNode,
 } from "react";
 
-import { notifications as seedNotifications, currentUser } from "@/data/mock-data";
 import {
+  fetchNotifications,
   fetchOpportunities,
+  fetchProfile,
+  persistAllNotificationsRead,
+  persistNotificationRead,
   persistOpportunityNote,
   persistOpportunityProbability,
   persistOpportunityStage,
@@ -49,12 +52,19 @@ const statusForStage: Record<PipelineStage, Opportunity["status"]> = {
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>(seedNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [authorName, setAuthorName] = useState("You");
 
   useEffect(() => {
     let cancelled = false;
-    fetchOpportunities().then((records) => {
+    void fetchOpportunities().then((records) => {
       if (!cancelled) setOpportunities(records);
+    });
+    void fetchNotifications().then((records) => {
+      if (!cancelled) setNotifications(records as Notification[]);
+    });
+    void fetchProfile().then((profile) => {
+      if (!cancelled && profile?.name) setAuthorName(profile.name);
     });
     return () => {
       cancelled = true;
@@ -70,18 +80,21 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     void persistOpportunityStage(id, stage);
   }, []);
 
-  const addNote = useCallback((id: string, body: string) => {
-    const note: OpportunityNote = {
-      id: crypto.randomUUID(),
-      author: currentUser.name,
-      body,
-      createdAt: new Date(),
-    };
-    setOpportunities((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, notes: [note, ...item.notes] } : item)),
-    );
-    void persistOpportunityNote(id, note);
-  }, []);
+  const addNote = useCallback(
+    (id: string, body: string) => {
+      const note: OpportunityNote = {
+        id: crypto.randomUUID(),
+        author: authorName,
+        body,
+        createdAt: new Date(),
+      };
+      setOpportunities((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, notes: [note, ...item.notes] } : item)),
+      );
+      void persistOpportunityNote(id, note);
+    },
+    [authorName],
+  );
 
   const updateProbability = useCallback((id: string, probability: number) => {
     const clamped = Math.min(100, Math.max(0, Math.round(probability)));
@@ -93,10 +106,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const markNotificationRead = useCallback((id: string, read: boolean) => {
     setNotifications((prev) => prev.map((item) => (item.id === id ? { ...item, read } : item)));
+    void persistNotificationRead(id, read);
   }, []);
 
   const markAllNotificationsRead = useCallback(() => {
     setNotifications((prev) => prev.map((item) => ({ ...item, read: true })));
+    void persistAllNotificationsRead();
   }, []);
 
   const value = useMemo<WorkspaceContextValue>(

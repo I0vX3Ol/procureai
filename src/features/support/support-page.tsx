@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { faqItems } from "@/data/mock-data";
+import { faqItems } from "@/data/marketing-content";
 
 export function SupportPage() {
   const [subject, setSubject] = useState("");

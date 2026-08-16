@@ -19,7 +19,7 @@ import { LandingNav } from "@/features/landing/components/landing-nav";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { enterpriseLogos, faqItems, pricingPlans, testimonials } from "@/data/mock-data";
+import { faqItems, pricingPlans } from "@/data/marketing-content";
 import { cn } from "@/lib/utils";
 
 const features = [
@@ -177,22 +177,6 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* Logos */}
-        <section className="border-b border-border py-12">
-          <div className="page-container">
-            <p className="text-center text-sm text-muted-foreground">
-              Trusted by capture teams at leading contractors
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
-              {enterpriseLogos.map((logo) => (
-                <span key={logo} className="text-sm font-medium text-muted-foreground">
-                  {logo}
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* Features */}
         <section id="features" className="section-padding border-b border-border">
           <div className="page-container">
@@ -249,30 +233,6 @@ export function LandingPage() {
                   <h3 className="mt-4 font-semibold">{item.title}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">{item.description}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonials */}
-        <section className="section-padding border-b border-border">
-          <div className="page-container">
-            <h2 className="text-center text-3xl font-semibold tracking-tight sm:text-4xl">
-              Loved by procurement teams
-            </h2>
-            <div className="mt-16 grid gap-6 md:grid-cols-3">
-              {testimonials.map((t) => (
-                <Card key={t.author} className="border-border/60">
-                  <CardContent className="pt-6">
-                    <p className="text-sm leading-relaxed">&ldquo;{t.quote}&rdquo;</p>
-                    <div className="mt-6">
-                      <p className="text-sm font-medium">{t.author}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {t.role}, {t.company}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
               ))}
             </div>
           </div>

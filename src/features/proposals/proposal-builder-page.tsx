@@ -19,7 +19,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { proposals as sampleProposals } from "@/data/workspace-data";
 import { aiService } from "@/lib/ai/service";
 import { fetchProposals, persistProposalSections } from "@/lib/remote-data";
 import { cn, formatCurrency, formatRelativeDate } from "@/lib/utils";
@@ -55,7 +54,15 @@ const FALLBACK_SECTION: ProposalSection = {
 
 export function ProposalBuilderPage() {
   const { opportunities } = useWorkspace();
-  const [proposal, setProposal] = useState<Proposal>(sampleProposals[0]!);
+  const [proposal, setProposal] = useState<Proposal>(() => ({
+    id: "",
+    title: "Untitled proposal",
+    opportunityId: "",
+    status: "draft",
+    dueDate: new Date(),
+    owner: "",
+    sections: [],
+  }));
 
   useEffect(() => {
     let cancelled = false;
