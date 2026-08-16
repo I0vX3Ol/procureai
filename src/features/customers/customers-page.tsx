@@ -1,5 +1,5 @@
 import { Building2, Mail, Phone, Search, Users } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/common/empty-state";
@@ -9,10 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { opportunities, projects } from "@/data/mock-data";
-import { customers } from "@/data/workspace-data";
+import { fetchCustomers, fetchProjects } from "@/lib/remote-data";
 import { cn, formatCurrency, formatRelativeDate } from "@/lib/utils";
+import { useWorkspace } from "@/providers/workspace-provider";
 import type { Customer } from "@/types/workspace";
+import type { Project } from "@/types";
 
 const sectorLabels: Record<Customer["sector"], string> = {
   federal: "Federal",
@@ -35,9 +36,27 @@ const sectorFilters: Array<{ value: Customer["sector"] | "all"; label: string }>
 ];
 
 export function CustomersPage() {
+  const { opportunities } = useWorkspace();
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [search, setSearch] = useState("");
   const [sector, setSector] = useState<Customer["sector"] | "all">("all");
-  const [selectedId, setSelectedId] = useState(customers[0]?.id ?? "");
+  const [selectedId, setSelectedId] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchCustomers().then((records) => {
+      if (cancelled) return;
+      setCustomers(records);
+      setSelectedId((current) => current || (records[0]?.id ?? ""));
+    });
+    void fetchProjects().then((records) => {
+      if (!cancelled) setProjects(records);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -137,14 +156,24 @@ export function CustomersPage() {
             ))}
           </ul>
 
-          {selected && <CustomerDetail customer={selected} />}
+          {selected && (
+            <CustomerDetail customer={selected} opportunities={opportunities} projects={projects} />
+          )}
         </div>
       )}
     </PageShell>
   );
 }
 
-function CustomerDetail({ customer }: { customer: Customer }) {
+function CustomerDetail({
+  customer,
+  opportunities,
+  projects,
+}: {
+  customer: Customer;
+  opportunities: import("@/types").Opportunity[];
+  projects: Project[];
+}) {
   const relatedOpportunities = opportunities.filter((opportunity) =>
     customer.openOpportunityIds.includes(opportunity.id),
   );

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2, Circle, FolderKanban, Users } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { PageShell } from "@/components/layout/page-shell";
@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { projects } from "@/data/mock-data";
+import { fetchProjects } from "@/lib/remote-data";
 import { daysUntil } from "@/lib/metrics";
 import { cn, formatCurrency, formatRelativeDate } from "@/lib/utils";
 import { useWorkspace } from "@/providers/workspace-provider";
@@ -41,11 +41,22 @@ const filters: { value: Project["status"] | "all"; label: string }[] = [
 
 export function ProjectsPage() {
   const { opportunities } = useWorkspace();
+  const [projects, setProjects] = useState<Project[]>([]);
   const [filter, setFilter] = useState<Project["status"] | "all">("all");
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchProjects().then((records) => {
+      if (!cancelled) setProjects(records);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const visible = useMemo(
     () => (filter === "all" ? projects : projects.filter((project) => project.status === filter)),
-    [filter],
+    [filter, projects],
   );
 
   const atRisk = projects.filter(

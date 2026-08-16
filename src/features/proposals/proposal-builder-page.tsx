@@ -9,7 +9,7 @@ import {
   Sparkles,
   WandSparkles,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { PageShell } from "@/components/layout/page-shell";
@@ -19,11 +19,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { opportunities } from "@/data/mock-data";
-import { proposals } from "@/data/workspace-data";
+import { proposals as sampleProposals } from "@/data/workspace-data";
 import { aiService } from "@/lib/ai/service";
+import { fetchProposals, persistProposalSections } from "@/lib/remote-data";
 import { cn, formatCurrency, formatRelativeDate } from "@/lib/utils";
-import type { ProposalSection } from "@/types/workspace";
+import { useWorkspace } from "@/providers/workspace-provider";
+import type { Proposal, ProposalSection } from "@/types/workspace";
 
 const statusLabels: Record<ProposalSection["status"], string> = {
   not_started: "Not started",
@@ -43,18 +44,46 @@ function wordCount(text: string) {
   return text.trim() ? text.trim().split(/\s+/).length : 0;
 }
 
+const FALLBACK_SECTION: ProposalSection = {
+  id: "sec-placeholder",
+  title: "Executive Summary",
+  guidance: "Two pages. Lead with mission outcomes and quantified differentiators.",
+  wordTarget: 700,
+  status: "not_started",
+  content: "",
+};
+
 export function ProposalBuilderPage() {
-  const proposal = proposals[0]!;
+  const { opportunities } = useWorkspace();
+  const [proposal, setProposal] = useState<Proposal>(sampleProposals[0]!);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchProposals().then((records) => {
+      if (!cancelled && records[0]) setProposal(records[0]);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const opportunity = opportunities.find((item) => item.id === proposal.opportunityId);
 
-  const [sections, setSections] = useState<ProposalSection[]>(proposal.sections);
-  const [activeId, setActiveId] = useState(proposal.sections[0]!.id);
+  const [sections, setSections] = useState<ProposalSection[]>([FALLBACK_SECTION]);
+  const [activeId, setActiveId] = useState(FALLBACK_SECTION.id);
   const [preview, setPreview] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [busy, setBusy] = useState<"generate" | "rewrite" | null>(null);
 
-  const active = sections.find((section) => section.id === activeId)!;
+  useEffect(() => {
+    if (proposal.sections.length > 0) {
+      setSections(proposal.sections);
+      setActiveId(proposal.sections[0]!.id);
+    }
+  }, [proposal]);
+
+  const active = sections.find((section) => section.id === activeId) ?? sections[0]!;
 
   const progress = useMemo(() => {
     const done = sections.filter((section) => section.status === "complete").length;
@@ -77,6 +106,7 @@ export function ProposalBuilderPage() {
   function handleSave() {
     setDirty(false);
     setSavedAt(new Date());
+    void persistProposalSections(proposal.id, sections);
     toast.success("Draft saved", { description: `${active.title} saved to this workspace.` });
   }
 

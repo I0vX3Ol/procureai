@@ -1,10 +1,20 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
-
 import {
-  notifications as seedNotifications,
-  opportunities as seedOpportunities,
-  currentUser,
-} from "@/data/mock-data";
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+
+import { notifications as seedNotifications, currentUser } from "@/data/mock-data";
+import {
+  fetchOpportunities,
+  persistOpportunityNote,
+  persistOpportunityProbability,
+  persistOpportunityStage,
+} from "@/lib/remote-data";
 import type { Notification, Opportunity, OpportunityNote, PipelineStage } from "@/types";
 
 /**
@@ -38,8 +48,18 @@ const statusForStage: Record<PipelineStage, Opportunity["status"]> = {
 };
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
-  const [opportunities, setOpportunities] = useState<Opportunity[]>(seedOpportunities);
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>(seedNotifications);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchOpportunities().then((records) => {
+      if (!cancelled) setOpportunities(records);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const moveOpportunity = useCallback((id: string, stage: PipelineStage) => {
     setOpportunities((prev) =>
@@ -47,6 +67,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         item.id === id ? { ...item, stage, status: statusForStage[stage] } : item,
       ),
     );
+    void persistOpportunityStage(id, stage);
   }, []);
 
   const addNote = useCallback((id: string, body: string) => {
@@ -59,6 +80,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     setOpportunities((prev) =>
       prev.map((item) => (item.id === id ? { ...item, notes: [note, ...item.notes] } : item)),
     );
+    void persistOpportunityNote(id, note);
   }, []);
 
   const updateProbability = useCallback((id: string, probability: number) => {
@@ -66,6 +88,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     setOpportunities((prev) =>
       prev.map((item) => (item.id === id ? { ...item, probability: clamped } : item)),
     );
+    void persistOpportunityProbability(id, clamped);
   }, []);
 
   const markNotificationRead = useCallback((id: string, read: boolean) => {
