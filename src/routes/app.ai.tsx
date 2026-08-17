@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { AIWorkspacePage } from "@/features/ai-workspace/ai-workspace-page";
+import { RequireSubscription } from "@/lib/require-subscription";
 
 export const Route = createFileRoute("/app/ai")({
   head: () => ({
@@ -17,5 +18,9 @@ export const Route = createFileRoute("/app/ai")({
       },
     ],
   }),
-  component: AIWorkspacePage,
+  component: () => (
+    <RequireSubscription feature="AI analysis">
+      <AIWorkspacePage />
+    </RequireSubscription>
+  ),
 });

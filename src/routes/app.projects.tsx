@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { ProjectsPage } from "@/features/projects/projects-page";
+import { RequireSubscription } from "@/lib/require-subscription";
 
 export const Route = createFileRoute("/app/projects")({
   head: () => ({
@@ -14,5 +15,9 @@ export const Route = createFileRoute("/app/projects")({
       },
     ],
   }),
-  component: ProjectsPage,
+  component: () => (
+    <RequireSubscription feature="Project tracking">
+      <ProjectsPage />
+    </RequireSubscription>
+  ),
 });

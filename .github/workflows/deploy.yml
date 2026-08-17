@@ -40,6 +40,22 @@ jobs:
         run: bun audit
         continue-on-error: true
 
+      # Fails the build if a server-side secret ever reaches the browser bundle.
+      # Cheap, and it turns "we were careful" into something enforced.
+      - name: Assert no secrets in client bundle
+        run: |
+          set -e
+          FOUND=0
+          for PATTERN in sk_live sk_test whsec_ SERVICE_ROLE STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET; do
+            if grep -rIl "$PATTERN" .output/public >/dev/null 2>&1; then
+              echo "::error::'$PATTERN' found in the client bundle (.output/public)"
+              grep -rIl "$PATTERN" .output/public || true
+              FOUND=1
+            fi
+          done
+          if [ "$FOUND" -ne 0 ]; then exit 1; fi
+          echo "No server-side secrets found in .output/public"
+
       - name: Upload build output
         uses: actions/upload-artifact@v4
         with:
@@ -67,6 +83,10 @@ jobs:
           name: worker-build
           path: .output
 
+      # Server-side billing config is pushed to the Worker on every deploy.
+      # These values live only in GitHub Actions secrets and Cloudflare's secret
+      # store — never in the repo, and never in the client bundle (the build
+      # only inlines VITE_* vars, and CI asserts the absence of these below).
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
@@ -74,6 +94,24 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: .output/server
           command: deploy --config wrangler.json
+          secrets: |
+            STRIPE_SECRET_KEY
+            STRIPE_WEBHOOK_SECRET
+            SUPABASE_URL
+            SUPABASE_SERVICE_ROLE_KEY
+            STRIPE_PRICE_STARTER
+            STRIPE_PRICE_PROFESSIONAL
+            STRIPE_PRICE_ENTERPRISE
+            APP_ORIGIN
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          STRIPE_PRICE_STARTER: ${{ secrets.STRIPE_PRICE_STARTER }}
+          STRIPE_PRICE_PROFESSIONAL: ${{ secrets.STRIPE_PRICE_PROFESSIONAL }}
+          STRIPE_PRICE_ENTERPRISE: ${{ secrets.STRIPE_PRICE_ENTERPRISE }}
+          APP_ORIGIN: https://procure.nexudel.com
 
   deploy-preview:
     name: Deploy PR preview

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { OpportunitiesPage } from "@/features/opportunities/opportunities-page";
+import { RequireSubscription } from "@/lib/require-subscription";
 
 export const Route = createFileRoute("/app/opportunities")({
   head: () => ({
@@ -17,5 +18,9 @@ export const Route = createFileRoute("/app/opportunities")({
       },
     ],
   }),
-  component: OpportunitiesPage,
+  component: () => (
+    <RequireSubscription feature="Opportunity tracking">
+      <OpportunitiesPage />
+    </RequireSubscription>
+  ),
 });

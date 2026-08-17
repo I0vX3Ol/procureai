@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { CalendarPage } from "@/features/calendar/calendar-page";
+import { RequireSubscription } from "@/lib/require-subscription";
 
 export const Route = createFileRoute("/app/calendar")({
   head: () => ({
@@ -17,5 +18,9 @@ export const Route = createFileRoute("/app/calendar")({
       },
     ],
   }),
-  component: CalendarPage,
+  component: () => (
+    <RequireSubscription feature="The shared calendar">
+      <CalendarPage />
+    </RequireSubscription>
+  ),
 });

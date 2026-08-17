@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { AnalyticsPage } from "@/features/analytics/analytics-page";
+import { RequireSubscription } from "@/lib/require-subscription";
 
 export const Route = createFileRoute("/app/analytics")({
   head: () => ({
@@ -17,5 +18,9 @@ export const Route = createFileRoute("/app/analytics")({
       },
     ],
   }),
-  component: AnalyticsPage,
+  component: () => (
+    <RequireSubscription feature="Advanced analytics" minimumPlan="professional">
+      <AnalyticsPage />
+    </RequireSubscription>
+  ),
 });

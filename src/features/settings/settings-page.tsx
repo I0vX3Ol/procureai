@@ -23,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { fetchProfile, updateProfile } from "@/lib/remote-data";
 import { useTheme } from "@/providers/theme-provider";
+import { BillingCard } from "@/features/settings/billing-card";
 
 interface NotificationPrefs {
   deadlineAlerts: boolean;
@@ -96,7 +97,7 @@ export function SettingsPage() {
       description="Account, organisation, appearance, AI, and security preferences"
       breadcrumbs={[{ label: "Workspace", href: "/app" }, { label: "Settings" }]}
     >
-      <Tabs defaultValue="profile" className="max-w-3xl">
+      <Tabs defaultValue="profile" className="max-w-5xl">
         <div className="overflow-x-auto">
           <TabsList aria-label="Settings sections">
             <TabsTrigger value="profile">Profile</TabsTrigger>
@@ -104,9 +105,14 @@ export function SettingsPage() {
             <TabsTrigger value="appearance">Appearance</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="ai">AI</TabsTrigger>
+            <TabsTrigger value="billing">Billing</TabsTrigger>
             <TabsTrigger value="security">Security</TabsTrigger>
           </TabsList>
         </div>
+
+        <TabsContent value="billing">
+          <BillingCard />
+        </TabsContent>
 
         <TabsContent value="profile">
           <Card>

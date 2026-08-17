@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { DocumentsPage } from "@/features/documents/documents-page";
+import { RequireSubscription } from "@/lib/require-subscription";
 
 export const Route = createFileRoute("/app/documents")({
   head: () => ({
@@ -17,5 +18,9 @@ export const Route = createFileRoute("/app/documents")({
       },
     ],
   }),
-  component: DocumentsPage,
+  component: () => (
+    <RequireSubscription feature="AI document analysis">
+      <DocumentsPage />
+    </RequireSubscription>
+  ),
 });

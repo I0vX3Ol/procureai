@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { PipelinePage } from "@/features/pipeline/pipeline-page";
+import { RequireSubscription } from "@/lib/require-subscription";
 
 export const Route = createFileRoute("/app/pipeline")({
   head: () => ({
@@ -17,5 +18,9 @@ export const Route = createFileRoute("/app/pipeline")({
       },
     ],
   }),
-  component: PipelinePage,
+  component: () => (
+    <RequireSubscription feature="Pipeline tracking">
+      <PipelinePage />
+    </RequireSubscription>
+  ),
 });

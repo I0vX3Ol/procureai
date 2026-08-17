@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { ProposalBuilderPage } from "@/features/proposals/proposal-builder-page";
+import { RequireSubscription } from "@/lib/require-subscription";
 
 export const Route = createFileRoute("/app/proposals")({
   head: () => ({
@@ -17,5 +18,9 @@ export const Route = createFileRoute("/app/proposals")({
       },
     ],
   }),
-  component: ProposalBuilderPage,
+  component: () => (
+    <RequireSubscription feature="Proposal management">
+      <ProposalBuilderPage />
+    </RequireSubscription>
+  ),
 });

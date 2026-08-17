@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { CustomersPage } from "@/features/customers/customers-page";
+import { RequireSubscription } from "@/lib/require-subscription";
 
 export const Route = createFileRoute("/app/customers")({
   head: () => ({
@@ -17,5 +18,9 @@ export const Route = createFileRoute("/app/customers")({
       },
     ],
   }),
-  component: CustomersPage,
+  component: () => (
+    <RequireSubscription feature="Customer records">
+      <CustomersPage />
+    </RequireSubscription>
+  ),
 });
