@@ -136,7 +136,11 @@ export function BillingCard() {
 
             {subscription.current_period_end && (
               <span className="text-sm text-muted-foreground">
-                {subscription.cancel_at_period_end ? "Ends" : "Renews"}{" "}
+                {subscription.status === "trialing"
+                  ? "Trial ends"
+                  : subscription.cancel_at_period_end
+                    ? "Ends"
+                    : "Renews"}{" "}
                 <time dateTime={subscription.current_period_end}>
                   {new Date(subscription.current_period_end).toLocaleDateString(undefined, {
                     year: "numeric",
@@ -241,7 +245,12 @@ export function BillingCard() {
                     "Current plan"
                   ) : (
                     <>
-                      {entitled ? "Switch to" : "Choose"} {copy.name}
+                      {/* First-timers get the 14-day trial the landing page
+                          promises; anyone who has subscribed before (even if
+                          currently cancelled) is resubscribing, not trialling. */}
+                      {!subscription
+                        ? `Start free trial — ${copy.name}`
+                        : `${entitled ? "Switch to" : "Resubscribe to"} ${copy.name}`}
                       <ExternalLink className="size-4" aria-hidden="true" />
                     </>
                   )}
