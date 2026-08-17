@@ -514,11 +514,13 @@ export function SettingsPage() {
               <div className="py-3">
                 <h3 className="text-sm font-medium">Compliance</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  SOC 2 Type II certified. Data encrypted at rest and in transit.
+                  Data is encrypted at rest and in transit, and your organisation&rsquo;s data is
+                  isolated from every other organisation&rsquo;s at the database level. We are not
+                  yet SOC 2 certified.
                 </p>
                 <Button variant="link" className="h-auto p-0" asChild>
                   <Link to="/app/support">
-                    Request the security package
+                    Ask us a security question
                     <ExternalLink className="ml-1 size-3.5" aria-hidden="true" />
                   </Link>
                 </Button>

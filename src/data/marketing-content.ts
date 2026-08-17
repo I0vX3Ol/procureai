@@ -6,7 +6,7 @@
 export const pricingPlans = [
   {
     name: "Starter",
-    price: 499,
+    price: 199,
     description: "For small teams getting started with procurement intelligence.",
     features: [
       "Up to 5 team members",
@@ -18,7 +18,7 @@ export const pricingPlans = [
   },
   {
     name: "Professional",
-    price: 999,
+    price: 299,
     description: "For growing teams managing complex bid portfolios.",
     features: [
       "Up to 25 team members",
@@ -32,29 +32,28 @@ export const pricingPlans = [
   },
   {
     name: "Enterprise",
-    price: 1999,
+    price: 499,
     description: "For organizations with advanced security and scale requirements.",
     features: [
       "Unlimited team members",
-      "Custom AI models",
-      "SSO & SAML",
+      "Advanced AI workspace",
       "Dedicated success manager",
-      "Audit logs & compliance",
-      "SLA guarantee",
+      "Activity log",
+      "Priority support",
     ],
   },
 ];
 
 export const faqItems = [
   {
-    question: "How does ProcureAI discover opportunities?",
+    question: "Does ProcureAI find opportunities for us automatically?",
     answer:
-      "ProcureAI aggregates data from SAM.gov, state procurement portals, enterprise RFP platforms, and custom feeds. Our AI continuously scans and matches opportunities to your company profile and past performance.",
+      "Not yet — ProcureAI is a pipeline and proposal workspace, not an opportunity feed. Your team adds the opportunities you are already tracking (from SAM.gov, an agency portal, a referral, anywhere), and ProcureAI takes it from there: stage tracking, fit scoring, deadlines, and AI-assisted analysis of the documents you upload. Automated opportunity discovery is on our roadmap, not in the product today.",
   },
   {
     question: "Is my data secure?",
     answer:
-      "Yes. ProcureAI is SOC 2 Type II certified, encrypts data at rest and in transit, and supports organization-level isolation with role-based access controls. Enterprise plans include SSO, audit logs, and custom data retention policies.",
+      "Your data is encrypted at rest and in transit, and every organisation's data is isolated at the database level — one company can never read another's records, enforced by Postgres row-level security rather than application code alone. We are not yet SOC 2 certified; if that is a requirement for your organisation, tell us and we will let you know where that stands before you commit to anything.",
   },
   {
     question: "Can AI write our entire proposal?",

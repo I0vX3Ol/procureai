@@ -25,9 +25,9 @@ import { cn } from "@/lib/utils";
 const features = [
   {
     icon: FileSearch,
-    title: "Opportunity Discovery",
+    title: "Opportunity Pipeline",
     description:
-      "Aggregate SAM.gov, state portals, and enterprise feeds. AI matches opportunities to your NAICS codes and past performance.",
+      "Track every opportunity your team is pursuing — stage, deadline, fit score and NAICS code — in one shared pipeline built for capture work.",
   },
   {
     icon: Sparkles,
@@ -90,12 +90,10 @@ const workflowSteps = [
 ];
 
 const securityItems = [
-  "SOC 2 Type II certified infrastructure",
-  "AES-256 encryption at rest and TLS 1.3 in transit",
-  "Role-based access control with SSO/SAML on Enterprise",
-  "Organization-level data isolation",
-  "Audit logs and custom data retention policies",
-  "FedRAMP-aligned security controls",
+  "Encrypted in transit and at rest",
+  "Organization-level data isolation, enforced at the database layer",
+  "Role-based access within your organisation",
+  "Activity log for every organisation",
 ];
 
 export function LandingPage() {
