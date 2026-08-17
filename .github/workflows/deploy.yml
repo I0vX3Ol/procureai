@@ -75,6 +75,10 @@ jobs:
     permissions:
       contents: read
       deployments: write
+    env:
+      # The `secrets` context cannot be referenced from a step-level `if`, so it
+      # is resolved to a plain boolean here and tested via `env` below.
+      HAS_BILLING_SECRETS: ${{ secrets.STRIPE_SECRET_KEY != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -100,7 +104,7 @@ jobs:
       # billing is configured. Until then the endpoints return 503 "Billing is
       # not configured" rather than failing the whole release.
       - name: Sync billing secrets to Worker
-        if: ${{ secrets.STRIPE_SECRET_KEY != '' }}
+        if: env.HAS_BILLING_SECRETS == 'true'
         working-directory: .output/server
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
