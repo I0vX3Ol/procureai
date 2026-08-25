@@ -1,0 +1,145 @@
+<!doctype html>
+<!--
+  Source for public/og.png. Rendered to a 1200x630 PNG by scripts/build-og-image.mjs.
+
+  Kept as HTML rather than committed only as a binary so the share card can be
+  edited and regenerated instead of being an opaque asset nobody dares touch.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        font-family: Inter, -apple-system, system-ui, sans-serif;
+        background: #0b0f19;
+        color: #f7f9fc;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 72px 80px;
+        -webkit-font-smoothing: antialiased;
+      }
+      /* Same radial wash as the site hero, so the card and the page match. */
+      .glow {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse 70% 55% at 50% -10%,
+          rgba(59, 130, 246, 0.28),
+          transparent 70%
+        );
+      }
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+        background-size: 48px 48px;
+        mask-image: linear-gradient(to bottom, #000 0%, transparent 75%);
+        -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 75%);
+      }
+      .inner {
+        position: relative;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .mark {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #2b7fff;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 20px;
+        letter-spacing: -0.02em;
+      }
+      .brand span {
+        font-size: 24px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      h1 {
+        font-size: 68px;
+        line-height: 1.08;
+        font-weight: 600;
+        letter-spacing: -0.035em;
+        max-width: 15ch;
+      }
+      h1 em {
+        font-style: normal;
+        color: #6ba5ff;
+      }
+      p {
+        margin-top: 26px;
+        font-size: 27px;
+        line-height: 1.45;
+        color: #9dabc2;
+        max-width: 30ch;
+        font-weight: 400;
+      }
+      .meta {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 21px;
+        color: #8695ad;
+      }
+      .dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #3c4a60;
+      }
+      .rule {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #2b7fff, #6ba5ff 45%, transparent);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="glow"></div>
+    <div class="grid"></div>
+
+    <div class="inner brand">
+      <div class="mark">P</div>
+      <span>ProcureAI</span>
+    </div>
+
+    <div class="inner">
+      <h1>Stop losing bids to <em>process</em></h1>
+      <p>Pipeline, RFP analysis and proposals for government capture teams.</p>
+    </div>
+
+    <div class="inner meta">
+      <span>procure.nexudel.com</span>
+      <span class="dot"></span>
+      <span>14-day trial, no card</span>
+    </div>
+
+    <div class="rule"></div>
+  </body>
+</html>

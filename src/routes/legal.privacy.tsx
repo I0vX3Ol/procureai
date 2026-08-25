@@ -1,20 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { seo } from "@/lib/seo";
+
 export const Route = createFileRoute("/legal/privacy")({
-  head: () => ({
-    meta: [
-      { title: "Privacy Policy | ProcureAI" },
-      {
-        name: "description",
-        content:
-          "How ProcureAI collects, uses, stores and protects personal information for account holders and site visitors.",
-      },
-      { property: "og:title", content: "ProcureAI Privacy Policy" },
-      { property: "og:description", content: "Our approach to personal data and privacy." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Privacy policy — ProcureAI",
+      description:
+        "How ProcureAI collects, uses, stores and protects personal information for account holders and site visitors.",
+      path: "/legal/privacy",
+    }),
   component: PrivacyPage,
 });
 

@@ -3,14 +3,14 @@ import {
   ArrowRight,
   BarChart3,
   Bot,
+  CalendarClock,
+  ChevronDown,
   CheckCircle2,
   FileSearch,
-  Lock,
+  Kanban,
   Shield,
   Sparkles,
-  Target,
   Users,
-  Zap,
 } from "lucide-react";
 import { motion } from "motion/react";
 
@@ -18,82 +18,57 @@ import { LandingFooter } from "@/features/landing/components/landing-footer";
 import { LandingNav } from "@/features/landing/components/landing-nav";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { faqItems, pricingPlans } from "@/data/marketing-content";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { guides } from "@/data/guides";
+import { faqItems, pricingPlans, securityItems, workflowSteps } from "@/data/marketing-content";
 import { cn } from "@/lib/utils";
 
+/**
+ * Six features, six distinct things.
+ *
+ * The previous list shipped "Opportunity Pipeline" and "Pipeline Management"
+ * as separate cards saying the same thing in different words, which is what a
+ * generated feature grid looks like when nobody read it back. They are one
+ * card now, and the freed slot went to the deadline calendar — a real part of
+ * the product that was not represented at all.
+ */
 const features = [
   {
+    icon: Kanban,
+    title: "One shared pipeline",
+    description:
+      "Every pursuit your team is working, with stage, owner, due date, fit score and NAICS code in one place instead of four spreadsheets.",
+  },
+  {
     icon: FileSearch,
-    title: "Opportunity Pipeline",
+    title: "AI document analysis",
     description:
-      "Track every opportunity your team is pursuing — stage, deadline, fit score and NAICS code — in one shared pipeline built for capture work.",
-  },
-  {
-    icon: Sparkles,
-    title: "AI Document Analysis",
-    description:
-      "Extract requirements, deadlines, evaluation criteria, and compliance items from RFPs up to 500 pages in minutes.",
-  },
-  {
-    icon: Target,
-    title: "Pipeline Management",
-    description:
-      "Track every bid from discovery through award with fit scores, stage gates, and deadline alerts.",
+      "Upload a solicitation and its attachments. Requirements, submission instructions, evaluation factors and dates come back cited to the page they came from.",
   },
   {
     icon: Bot,
-    title: "Proposal Assistant",
+    title: "Proposal builder",
     description:
-      "Draft technical volumes, executive summaries, and compliance matrices with cited source references.",
+      "Section-by-section drafting against a compliance structure, with AI to get past the blank page and progress tracking so you know what is still open.",
+  },
+  {
+    icon: CalendarClock,
+    title: "Deadlines you can see coming",
+    description:
+      "Question deadlines, submission dates and internal review gates on one calendar, because the expensive miss is never the one you knew about.",
   },
   {
     icon: BarChart3,
-    title: "Win Rate Analytics",
+    title: "Win-rate analytics",
     description:
-      "Measure pipeline velocity, conversion by stage, and revenue attribution across your portfolio.",
+      "Conversion by stage, pipeline velocity and revenue attribution — the numbers that tell you whether your bid decisions are getting better.",
   },
   {
     icon: Users,
-    title: "Team Collaboration",
+    title: "Team collaboration",
     description:
-      "Assign tasks, share documents, and coordinate capture teams with role-based access controls.",
+      "Assign sections, share documents and keep capture, technical and pricing people looking at the same record.",
   },
-];
-
-const workflowSteps = [
-  {
-    step: "01",
-    title: "Discover",
-    description: "AI scans procurement sources and surfaces high-fit opportunities.",
-  },
-  {
-    step: "02",
-    title: "Analyze",
-    description: "Upload RFPs for instant requirement extraction and risk assessment.",
-  },
-  {
-    step: "03",
-    title: "Qualify",
-    description: "Score fit, estimate win probability, and decide go/no-go.",
-  },
-  {
-    step: "04",
-    title: "Respond",
-    description: "Build proposals with AI drafts, compliance checks, and team review.",
-  },
-  {
-    step: "05",
-    title: "Win",
-    description: "Track outcomes, capture lessons learned, and refine your strategy.",
-  },
-];
-
-const securityItems = [
-  "Encrypted in transit and at rest",
-  "Organization-level data isolation, enforced at the database layer",
-  "Role-based access within your organisation",
-  "Activity log for every organisation",
 ];
 
 export function LandingPage() {
@@ -114,14 +89,19 @@ export function LandingPage() {
               >
                 <Badge variant="secondary" className="mb-6">
                   <Sparkles className="mr-1 size-3" aria-hidden="true" />
-                  AI-powered procurement intelligence
+                  For government and enterprise capture teams
                 </Badge>
                 <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-                  Win more bids with <span className="text-primary">AI-driven</span> procurement
+                  Stop losing bids to <span className="text-primary">process</span>
                 </h1>
+                {/*
+                  This paragraph used to promise opportunity discovery, which
+                  the FAQ on the same page correctly says the product does not
+                  do. It now describes the product that exists.
+                */}
                 <p className="mt-6 text-balance text-lg text-muted-foreground sm:text-xl">
-                  Discover opportunities, analyze RFPs in minutes, and build winning proposals — all
-                  in one platform built for modern procurement teams.
+                  ProcureAI reads the solicitation, holds the pipeline and gives the proposal a
+                  structure to write against — so responses go out compliant and on time.
                 </p>
                 <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
                   <Button size="lg" asChild>
@@ -130,12 +110,19 @@ export function LandingPage() {
                       <ArrowRight className="size-4" aria-hidden="true" />
                     </Link>
                   </Button>
+                  {/*
+                    Previously "View demo dashboard", pointing at /app — which
+                    bounces every signed-out visitor to the login page. There is
+                    no public demo, so the button no longer claims one.
+                  */}
                   <Button size="lg" variant="outline" asChild>
-                    <Link to="/app">View demo dashboard</Link>
+                    <Link to="/" hash="workflow">
+                      See how it works
+                    </Link>
                   </Button>
                 </div>
                 <p className="mt-4 text-xs text-muted-foreground">
-                  No credit card required · 14-day free trial · Cancel anytime
+                  14-day trial · No card required · Cancel from inside the app
                 </p>
               </motion.div>
             </div>
@@ -176,16 +163,27 @@ export function LandingPage() {
           </div>
         </section>
 
+        {/* What it does not do — stated before the feature list, not after */}
+        <section className="border-b border-border bg-muted/30">
+          <div className="page-container py-10">
+            <p className="mx-auto max-w-3xl text-center text-sm leading-relaxed text-muted-foreground">
+              <span className="font-medium text-foreground">One thing to be clear about:</span>{" "}
+              ProcureAI does not find opportunities for you. You bring the pursuit — from SAM.gov,
+              an agency portal, a teaming partner — and the product does everything after that.
+              Automated discovery is on the roadmap, not in the product.
+            </p>
+          </div>
+        </section>
+
         {/* Features */}
-        <section id="features" className="section-padding border-b border-border">
+        <section id="features" className="section-padding border-b border-border scroll-mt-16">
           <div className="page-container">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                Everything you need to win complex bids
+                Everything after the solicitation lands
               </h2>
               <p className="mt-4 text-muted-foreground">
-                From opportunity discovery to proposal delivery — ProcureAI streamlines every step
-                of your capture process.
+                The mechanical parts of capture work, done once and done properly.
               </p>
             </div>
             <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -207,17 +205,20 @@ export function LandingPage() {
         </section>
 
         {/* Workflow */}
-        <section id="workflow" className="section-padding border-b border-border bg-muted/30">
+        <section
+          id="workflow"
+          className="section-padding border-b border-border bg-muted/30 scroll-mt-16"
+        >
           <div className="page-container">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                From discovery to award
+                From solicitation to award
               </h2>
               <p className="mt-4 text-muted-foreground">
-                A structured workflow that keeps your team aligned and deadlines on track.
+                Five steps, in the order a capture team actually works them.
               </p>
             </div>
-            <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-5 lg:gap-6">
               {workflowSteps.map((item, i) => (
                 <div key={item.step} className="relative text-center lg:text-left">
                   {i < workflowSteps.length - 1 && (
@@ -230,7 +231,9 @@ export function LandingPage() {
                     {item.step}
                   </div>
                   <h3 className="mt-4 font-semibold">{item.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{item.description}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {item.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -238,22 +241,22 @@ export function LandingPage() {
         </section>
 
         {/* Pricing */}
-        <section id="pricing" className="section-padding border-b border-border bg-muted/30">
+        <section id="pricing" className="section-padding border-b border-border scroll-mt-16">
           <div className="page-container">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
                 Simple, transparent pricing
               </h2>
               <p className="mt-4 text-muted-foreground">
-                Start with a 14-day free trial. Scale as your team grows.
+                Fourteen days free, without a card. Scale as your team grows.
               </p>
             </div>
             <div className="mt-16 grid gap-6 lg:grid-cols-3">
               {pricingPlans.map((plan) => (
                 <Card
-                  key={plan.name}
+                  key={plan.slug}
                   className={cn(
-                    "relative border-border/60",
+                    "relative flex flex-col border-border/60",
                     plan.highlighted && "border-primary shadow-md ring-1 ring-primary/20",
                   )}
                 >
@@ -270,8 +273,8 @@ export function LandingPage() {
                       <span className="text-muted-foreground">/month</span>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
+                  <div className="flex flex-1 flex-col px-6 pb-6">
+                    <ul className="flex-1 space-y-3">
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex items-start gap-2 text-sm">
                           <CheckCircle2
@@ -289,15 +292,21 @@ export function LandingPage() {
                     >
                       <Link to="/signup">Start free trial</Link>
                     </Button>
-                  </CardContent>
+                  </div>
                 </Card>
               ))}
             </div>
+            <p className="mt-8 text-center text-sm text-muted-foreground">
+              <Link to="/pricing" className="font-medium text-primary hover:underline">
+                Compare plans in detail
+              </Link>{" "}
+              — full feature lists and billing questions.
+            </p>
           </div>
         </section>
 
         {/* Security */}
-        <section id="security" className="section-padding border-b border-border">
+        <section id="security" className="section-padding border-b border-border scroll-mt-16">
           <div className="page-container">
             <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
               <div>
@@ -305,27 +314,39 @@ export function LandingPage() {
                   <Shield className="size-6 text-primary" aria-hidden="true" />
                 </div>
                 <h2 className="mt-6 text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Enterprise-grade security
+                  Built for data you cannot leak
                 </h2>
-                <p className="mt-4 text-muted-foreground">
-                  Your bid data is sensitive. ProcureAI is built with the security controls required
-                  for government and enterprise procurement workflows.
+                <p className="mt-4 leading-relaxed text-muted-foreground">
+                  Unreleased pricing and win themes are among the most sensitive things a company
+                  holds. Tenant isolation is enforced in Postgres rather than in application code,
+                  so a bug in the app returns an empty result instead of someone else&rsquo;s
+                  pipeline.
                 </p>
+                {/*
+                  Was "Request security brief" pointing at /signup — a CTA that
+                  did something other than what it said. There is a security
+                  page now, so it goes there.
+                */}
                 <Button className="mt-8" variant="outline" asChild>
-                  <Link to="/signup">
-                    <Lock className="size-4" aria-hidden="true" />
-                    Request security brief
+                  <Link to="/security">
+                    Read the security overview
+                    <ArrowRight className="size-4" aria-hidden="true" />
                   </Link>
                 </Button>
               </div>
               <ul className="space-y-4">
-                {securityItems.map((item) => (
-                  <li key={item} className="flex items-start gap-3">
+                {securityItems.slice(0, 4).map((item) => (
+                  <li key={item.title} className="flex items-start gap-3">
                     <CheckCircle2
                       className="mt-0.5 size-5 shrink-0 text-success-emphasis"
                       aria-hidden="true"
                     />
-                    <span className="text-sm">{item}</span>
+                    <span>
+                      <span className="text-sm font-medium">{item.title}</span>
+                      <span className="mt-0.5 block text-sm leading-relaxed text-muted-foreground">
+                        {item.body}
+                      </span>
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -333,8 +354,48 @@ export function LandingPage() {
           </div>
         </section>
 
+        {/* Guides */}
+        <section className="section-padding border-b border-border bg-muted/30">
+          <div className="page-container">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div className="max-w-2xl">
+                <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+                  Guides for capture teams
+                </h2>
+                <p className="mt-4 text-muted-foreground">
+                  How to decide what to bid, and how to keep a response compliant once you have.
+                </p>
+              </div>
+              <Link to="/guides" className="text-sm font-medium text-primary hover:underline">
+                All guides
+              </Link>
+            </div>
+            <ul className="mt-12 grid gap-6 md:grid-cols-3">
+              {guides.map((guide) => (
+                <li key={guide.slug}>
+                  <Link
+                    to="/guides/$slug"
+                    params={{ slug: guide.slug }}
+                    className="group flex h-full flex-col rounded-xl border border-border bg-background p-6 transition-colors hover:border-primary/40"
+                  >
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      {guide.readingMinutes} min read
+                    </p>
+                    <h3 className="mt-3 font-semibold leading-snug group-hover:text-primary">
+                      {guide.title}
+                    </h3>
+                    <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
+                      {guide.description}
+                    </p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
         {/* FAQ */}
-        <section id="faq" className="section-padding border-b border-border bg-muted/30">
+        <section id="faq" className="section-padding border-b border-border scroll-mt-16">
           <div className="page-container">
             <h2 className="text-center text-3xl font-semibold tracking-tight sm:text-4xl">
               Frequently asked questions
@@ -344,8 +405,13 @@ export function LandingPage() {
                 <details key={item.question} className="group py-5">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium [&::-webkit-details-marker]:hidden">
                     {item.question}
-                    <Zap
-                      className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-12"
+                    {/*
+                      Was a Zap icon rotating 12 degrees, which reads as
+                      decoration rather than as a control. A chevron that flips
+                      is the convention people already know.
+                    */}
+                    <ChevronDown
+                      className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180"
                       aria-hidden="true"
                     />
                   </summary>
@@ -363,11 +429,10 @@ export function LandingPage() {
           <div className="page-container">
             <div className="rounded-2xl border border-border bg-primary px-8 py-16 text-center text-primary-foreground sm:px-16">
               <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                Ready to transform your capture process?
+                Try it on your next solicitation
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-primary-foreground/80">
-                Join procurement teams who respond faster, qualify smarter, and win more with
-                ProcureAI.
+                Upload a live RFP and see what comes back. Fourteen days, no card, no call.
               </p>
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Button size="lg" variant="secondary" asChild>
