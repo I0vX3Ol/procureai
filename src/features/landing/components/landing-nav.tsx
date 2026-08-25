@@ -6,12 +6,21 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/providers/theme-provider";
 
-const navLinks = [
-  { label: "Features", href: "#features" },
-  { label: "Workflow", href: "#workflow" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Security", href: "#security" },
+/**
+ * Marketing nav.
+ *
+ * These were bare fragments ("#features"), which resolve against whatever page
+ * you are already on — so every one of them was dead from /pricing, /security
+ * and the guides. Section links are written from the site root so they work
+ * from anywhere, and the two destinations that earned their own page are
+ * router links.
+ */
+const navLinks: Array<{ label: string; to: string; hash?: string }> = [
+  { label: "Features", to: "/", hash: "features" },
+  { label: "How it works", to: "/", hash: "workflow" },
+  { label: "Pricing", to: "/pricing" },
+  { label: "Security", to: "/security" },
+  { label: "Guides", to: "/guides" },
 ];
 
 export function LandingNav() {
@@ -36,22 +45,26 @@ export function LandingNav() {
       )}
     >
       <div className="page-container flex h-14 items-center justify-between gap-4">
-        <a href="#" className="flex items-center gap-2.5 shrink-0">
+        <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="ProcureAI home">
           <div className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <span className="text-xs font-bold tracking-tight">P</span>
           </div>
           <span className="text-sm font-semibold tracking-tight">ProcureAI</span>
-        </a>
+        </Link>
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
           {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
+            <Link
+              key={link.label}
+              to={link.to}
+              // Spread rather than `hash={link.hash}`: under
+              // exactOptionalPropertyTypes an explicit `undefined` is not the
+              // same as an absent prop, and Link rejects it.
+              {...(link.hash ? { hash: link.hash } : {})}
               className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -106,14 +119,15 @@ export function LandingNav() {
         >
           <nav className="page-container flex flex-col gap-1 py-3" aria-label="Mobile">
             {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
+              <Link
+                key={link.label}
+                to={link.to}
+                {...(link.hash ? { hash: link.hash } : {})}
                 onClick={() => setMobileOpen(false)}
                 className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
             <div className="mt-2 flex flex-col gap-2 border-t border-border pt-3">
               <Link

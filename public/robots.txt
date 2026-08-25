@@ -1,8 +1,23 @@
+# ProcureAI — https://procure.nexudel.com
+#
+# Private areas are kept out of the index with a `noindex` meta tag (see
+# src/lib/seo.ts and src/routes/app.tsx), not with Disallow rules.
+#
+# Those two things do not stack. A disallowed URL can still be indexed from
+# inbound links — the crawler simply never fetches it, so it never sees the
+# noindex either, and the page turns up in results as a bare URL with no
+# description. Allowing the crawl is what lets the noindex actually work.
+#
+# /forgot-password used to be listed here. That route does not exist.
+#
+# NOTE: Cloudflare prepends a managed block above this one at the edge, which
+# sends `Disallow: /` to GPTBot, ClaudeBot, Google-Extended, CCBot, Bytespider
+# and others. Googlebot is not affected, so Search is unharmed, but it does
+# keep this site out of AI-assistant answers. That block is a zone-level
+# setting on nexudel.com and cannot be changed from this repo — see the
+# Cloudflare dashboard, Security → Settings → "AI Scrapers and Crawlers".
+
 User-agent: *
 Allow: /
-Disallow: /app
-Disallow: /login
-Disallow: /signup
-Disallow: /forgot-password
 
 Sitemap: https://procure.nexudel.com/sitemap.xml

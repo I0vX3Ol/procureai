@@ -1,21 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { SignupPage } from "@/features/auth/signup-page";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/signup")({
-  head: () => ({
-    meta: [
-      { title: "Create your account — ProcureAI" },
-      {
-        name: "description",
-        content: "Start a ProcureAI workspace and track procurement opportunities with AI.",
-      },
-      { property: "og:title", content: "Create your account — ProcureAI" },
-      {
-        property: "og:description",
-        content: "Start a ProcureAI workspace and track procurement opportunities with AI.",
-      },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Start your free trial — ProcureAI",
+      description:
+        "Create a ProcureAI workspace. Fourteen days free, no card required, cancel from inside the app.",
+      path: "/signup",
+      noindex: true,
+    }),
   component: SignupPage,
 });

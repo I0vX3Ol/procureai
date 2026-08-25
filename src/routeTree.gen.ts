@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as SecurityRouteImport } from './routes/security'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAiRouteImport } from './routes/app.ai'
@@ -28,6 +30,8 @@ import { Route as AppProjectsRouteImport } from './routes/app.projects'
 import { Route as AppProposalsRouteImport } from './routes/app.proposals'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppSupportRouteImport } from './routes/app.support'
+import { Route as GuidesIndexRouteImport } from './routes/guides.index'
+import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
 import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
 import { Route as LegalTermsRouteImport } from './routes/legal.terms'
 
@@ -44,6 +48,16 @@ const AppRoute = AppRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -126,6 +140,16 @@ const AppSupportRoute = AppSupportRouteImport.update({
   path: '/support',
   getParentRoute: () => AppRoute,
 } as any)
+const GuidesIndexRoute = GuidesIndexRouteImport.update({
+  id: '/guides/',
+  path: '/guides/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesSlugRoute = GuidesSlugRouteImport.update({
+  id: '/guides/$slug',
+  path: '/guides/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
   id: '/legal/privacy',
   path: '/legal/privacy',
@@ -141,6 +165,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
+  '/security': typeof SecurityRoute
   '/signup': typeof SignupRoute
   '/app/ai': typeof AppAiRoute
   '/app/analytics': typeof AppAnalyticsRoute
@@ -156,13 +182,17 @@ export interface FileRoutesByFullPath {
   '/app/proposals': typeof AppProposalsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/support': typeof AppSupportRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/app/': typeof AppIndexRoute
+  '/guides/': typeof GuidesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
+  '/security': typeof SecurityRoute
   '/signup': typeof SignupRoute
   '/app/ai': typeof AppAiRoute
   '/app/analytics': typeof AppAnalyticsRoute
@@ -178,15 +208,19 @@ export interface FileRoutesByTo {
   '/app/proposals': typeof AppProposalsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/support': typeof AppSupportRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/app': typeof AppIndexRoute
+  '/guides': typeof GuidesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
+  '/security': typeof SecurityRoute
   '/signup': typeof SignupRoute
   '/app/ai': typeof AppAiRoute
   '/app/analytics': typeof AppAnalyticsRoute
@@ -202,9 +236,11 @@ export interface FileRoutesById {
   '/app/proposals': typeof AppProposalsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/support': typeof AppSupportRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/app/': typeof AppIndexRoute
+  '/guides/': typeof GuidesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -212,6 +248,8 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/login'
+    | '/pricing'
+    | '/security'
     | '/signup'
     | '/app/ai'
     | '/app/analytics'
@@ -227,13 +265,17 @@ export interface FileRouteTypes {
     | '/app/proposals'
     | '/app/settings'
     | '/app/support'
+    | '/guides/$slug'
     | '/legal/privacy'
     | '/legal/terms'
     | '/app/'
+    | '/guides/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
+    | '/pricing'
+    | '/security'
     | '/signup'
     | '/app/ai'
     | '/app/analytics'
@@ -249,14 +291,18 @@ export interface FileRouteTypes {
     | '/app/proposals'
     | '/app/settings'
     | '/app/support'
+    | '/guides/$slug'
     | '/legal/privacy'
     | '/legal/terms'
     | '/app'
+    | '/guides'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/login'
+    | '/pricing'
+    | '/security'
     | '/signup'
     | '/app/ai'
     | '/app/analytics'
@@ -272,18 +318,24 @@ export interface FileRouteTypes {
     | '/app/proposals'
     | '/app/settings'
     | '/app/support'
+    | '/guides/$slug'
     | '/legal/privacy'
     | '/legal/terms'
     | '/app/'
+    | '/guides/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
+  PricingRoute: typeof PricingRoute
+  SecurityRoute: typeof SecurityRoute
   SignupRoute: typeof SignupRoute
+  GuidesSlugRoute: typeof GuidesSlugRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
+  GuidesIndexRoute: typeof GuidesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -307,6 +359,20 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -421,6 +487,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSupportRouteImport
       parentRoute: typeof AppRoute
     }
+    '/guides/': {
+      id: '/guides/'
+      path: '/guides'
+      fullPath: '/guides/'
+      preLoaderRoute: typeof GuidesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides/$slug': {
+      id: '/guides/$slug'
+      path: '/guides/$slug'
+      fullPath: '/guides/$slug'
+      preLoaderRoute: typeof GuidesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/legal/privacy': {
       id: '/legal/privacy'
       path: '/legal/privacy'
@@ -480,9 +560,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
+  PricingRoute: PricingRoute,
+  SecurityRoute: SecurityRoute,
   SignupRoute: SignupRoute,
+  GuidesSlugRoute: GuidesSlugRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
+  GuidesIndexRoute: GuidesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

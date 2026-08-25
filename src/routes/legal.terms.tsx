@@ -1,20 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { seo } from "@/lib/seo";
+
 export const Route = createFileRoute("/legal/terms")({
-  head: () => ({
-    meta: [
-      { title: "Terms of Service | ProcureAI" },
-      {
-        name: "description",
-        content:
-          "The terms that govern use of the ProcureAI platform, including acceptable use, subscriptions and data accuracy disclaimers.",
-      },
-      { property: "og:title", content: "ProcureAI Terms of Service" },
-      { property: "og:description", content: "Terms governing use of the ProcureAI platform." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Terms of service — ProcureAI",
+      description:
+        "The terms governing use of ProcureAI, including subscriptions, acceptable use, and the limits of our liability.",
+      path: "/legal/terms",
+    }),
   component: TermsPage,
 });
 

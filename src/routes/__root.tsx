@@ -59,17 +59,22 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
+    // Defaults only. Every public page overrides these through `seo()` in
+    // src/lib/seo.ts, which is also what supplies canonical, og:url and
+    // og:image — three tags that were missing site-wide when they lived here.
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ProcureAI — AI procurement intelligence" },
+      { title: "ProcureAI — pipeline and proposal software for government bids" },
       {
         name: "description",
         content:
-          "ProcureAI helps teams discover, qualify, and win government and enterprise procurement opportunities.",
+          "A workspace for capture teams: track every pursuit, pull requirements out of a solicitation with AI, and build compliant proposals.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "ProcureAI" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "theme-color", content: "#0b0f19" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -112,8 +117,9 @@ function RootShell({ children }: { children: ReactNode }) {
               "@type": "Organization",
               name: "ProcureAI",
               url: "https://procure.nexudel.com",
+              logo: "https://procure.nexudel.com/og.png",
               description:
-                "ProcureAI helps teams discover, qualify, and win government and enterprise procurement opportunities.",
+                "ProcureAI is a pipeline and proposal workspace for teams bidding government and enterprise contracts.",
             }),
           }}
         />
